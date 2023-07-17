@@ -1,17 +1,15 @@
 import { Canvas } from "@react-three/fiber";
-import Polyhedron from "./Polyhedron";
-import * as THREE from "three";
 import { Stats, OrbitControls } from "@react-three/drei";
 import { Robot } from "../3d/Robot";
 import { DoubleSide } from "three";
 import { useState, useRef } from "react";
-import {Coin} from '../3d/Coin';
-import {Space} from './BackgroundSpace';
-import { Plane } from "./Plane";
-import { SpaceTwo } from "./SpaceTwo";
-const boxOffset=5;
+import { Coin } from "../3d/Coin";
+import { Space } from "../3d/BackgroundSpace";
+import { Plane } from "../3d/Plane";
+import { SpaceTwo } from "../3d/SpaceTwo";
+const boxOffset = 5;
 
-function Box({ position }) {
+function Box({ position }: { position: [x: number, y: number, z: number] }) {
   return (
     <mesh position={position}>
       <boxGeometry args={[1, 0.6, 1]} />
@@ -19,10 +17,22 @@ function Box({ position }) {
     </mesh>
   );
 }
-function Star({ position,deleteCoorBattery,isStarToDelete,resetFlag,setResetFlag }) {
+function Star({
+  position,
+  deleteCoorBattery,
+  isStarToDelete,
+  resetFlag,
+  setResetFlag,
+}) {
   return (
     <mesh position={position}>
-      <Coin position={position} deleteCoorBattery={deleteCoorBattery} isStarToDelete={isStarToDelete} resetFlag={resetFlag} setResetFlag={setResetFlag}/>
+      <Coin
+        position={position}
+        deleteCoorBattery={deleteCoorBattery}
+        isStarToDelete={isStarToDelete}
+        resetFlag={resetFlag}
+        setResetFlag={setResetFlag}
+      />
     </mesh>
   );
 }
@@ -39,11 +49,12 @@ const ThreeDMatrix = ({
   showHint,
   setShowHint,
 }) => {
-  const [filterBatteryPosition , setFilterBatteryPosition] = useState(batteryPosition);
-  const [deleteCoorBattery,setDeleteCoorBattery] = useState([]);
-  const [isWin , setIsWin] = useState(false);
+  const [filterBatteryPosition, setFilterBatteryPosition] =
+    useState(batteryPosition);
+  const [deleteCoorBattery, setDeleteCoorBattery] = useState([]);
+  const [isWin, setIsWin] = useState(false);
   const [cameraPosition, setCameraPosition] = useState([2, 5, 7]);
-  const [tryCount , setTryCount] = useState(1);
+  const [tryCount, setTryCount] = useState(1);
 
   return (
     <div className="h-screen w-full bg-blue-700">
@@ -56,8 +67,8 @@ const ThreeDMatrix = ({
           position={[10, 15, 10]}
           castShadow
         />
-         <Space position={[0,4,-17]}/>
-         <Plane position= {[-17,6,-20]}/>
+        <Space position={[0, 4, -17]} />
+        <Plane position={[-17, 6, -20]} />
         <Robot
           row={row}
           col={col}
@@ -67,22 +78,24 @@ const ThreeDMatrix = ({
           filterBatteryPosition={filterBatteryPosition}
           setFilterBatteryPosition={setFilterBatteryPosition}
           obstaclePosition={obstaclePosition}
-          resetFlag ={resetFlag}
+          resetFlag={resetFlag}
           setResetFlag={setResetFlag}
-          setDeleteCoorBattery ={setDeleteCoorBattery}
-          isWin ={isWin}
-          setIsWin ={setIsWin}
+          setDeleteCoorBattery={setDeleteCoorBattery}
+          isWin={isWin}
+          setIsWin={setIsWin}
           cameraPosition={cameraPosition}
           setCameraPosition={setCameraPosition}
-          tryCount ={tryCount}
+          tryCount={tryCount}
           setTryCount={setTryCount}
-          hintArray ={hintArray}
-          showHint ={showHint}
-          setShowHint ={setShowHint}
+          hintArray={hintArray}
+          showHint={showHint}
+          setShowHint={setShowHint}
         />
-        <OrbitControls enablePan={false}  
-  minPolarAngle={0}
-  maxPolarAngle={Math.PI / 2.5}/>
+        <OrbitControls
+          enablePan={false}
+          minPolarAngle={0}
+          maxPolarAngle={Math.PI / 2.5}
+        />
         <gridHelper args={[row, col, "red", "red", "red"]} />
         <mesh
           position={[0, -0.01, 0]}
@@ -97,23 +110,27 @@ const ThreeDMatrix = ({
             const x = value[0] - boxOffset - 0.5;
             const z = -(value[1] - boxOffset - 0.5);
             const position = [x, 0.3, z];
-            return (
-              <Box key={`${x}-${z}`} position={position} />
-            );
+            return <Box key={`${x}-${z}`} position={position} />;
           })}
-          {batteryPosition &&
-            batteryPosition.map((value, rowIndex) => {
+        {batteryPosition &&
+          batteryPosition.map((value, rowIndex) => {
             const x = value[0] - boxOffset - 0.5;
             const z = -(value[1] - boxOffset - 0.5);
             const position = [x, 0, z];
             const isStarToDelete = useRef(false);
             return (
-              <Star position={position} deleteCoorBattery={deleteCoorBattery} isStarToDelete={isStarToDelete} resetFlag={resetFlag} setResetFlag={setResetFlag}/>
+              <Star
+                position={position}
+                deleteCoorBattery={deleteCoorBattery}
+                isStarToDelete={isStarToDelete}
+                resetFlag={resetFlag}
+                setResetFlag={setResetFlag}
+              />
             );
           })}
         <Stats />
-        <SpaceTwo position={[15,0,7]}/>
-        <Space position={[0,4,27]}/>
+        <SpaceTwo position={[15, 0, 7]} />
+        <Space position={[0, 4, 27]} />
       </Canvas>
     </div>
   );
