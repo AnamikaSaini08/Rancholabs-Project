@@ -8,5 +8,6 @@ export interface IGameConfig {
     initialDirectionRobot: "TOP" | "BOTTOM" | "LEFT" | "RIGHT";
     hintArray?: ("LEFT" | "RIGHT" | "FORWARD" | "TOP")[];
     environment: string;
+    blocks: string[];
   }
   

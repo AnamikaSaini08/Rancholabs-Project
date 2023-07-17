@@ -10,7 +10,7 @@ const blocklyInstructionSlice = createSlice({
             state.blockInstructionArray = action.payload;
         },
         resetBlocklyInstruction : (state,action)=>{
-            state.blockInstructionArray = [];
+            state.blockInstructionArray = action.payload;
         },
         addHintInstruction:(state,action)=>{
             state.blockInstructionArray = action.payload
