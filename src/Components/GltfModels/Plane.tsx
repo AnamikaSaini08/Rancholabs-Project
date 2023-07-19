@@ -157,7 +157,9 @@ type GLTFActions = Record<ActionName, THREE.AnimationAction>;
 
 export function Plane(props: JSX.IntrinsicElements["group"]) {
   const group = useRef<THREE.Group>();
-  const { nodes, materials, animations } = useGLTF("/scene.gltf") as GLTFResult;
+  const { nodes, materials, animations } = useGLTF(
+    "./Assets/plane/scene-transformed.glb"
+  ) as GLTFResult;
   const { actions } = useAnimations(animations, group);
   return (
     <group ref={group as Ref<THREE.Group>} {...props} dispose={null}>

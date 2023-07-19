@@ -1,136 +1,104 @@
 import { Canvas } from "@react-three/fiber";
-import { Stats, OrbitControls } from "@react-three/drei";
-import { Robot } from "../3d/Robot";
-import { DoubleSide } from "three";
-import { useState, useRef } from "react";
-import { Coin } from "../3d/Coin";
-import { Space } from "../3d/BackgroundSpace";
-import { Plane } from "../3d/Plane";
-import { SpaceTwo } from "../3d/SpaceTwo";
-const boxOffset = 5;
+import {
+  OrbitControls,
+  PerspectiveCamera,
+  Environment,
+  RoundedBox,
+} from "@react-three/drei";
+import { IGameConfig } from "../../Interface/IGameConfig";
+import { useRef } from "react";
+import { Star } from "../GltfModels/Star";
+import { Robot } from "../GltfModels/Robot";
+import { CameraHandler } from "../3d/CameraHandler";
 
-function Box({ position }: { position: [x: number, y: number, z: number] }) {
-  return (
-    <mesh position={position}>
-      <boxGeometry args={[1, 0.6, 1]} />
-      <meshStandardMaterial color="red" />
-    </mesh>
-  );
-}
-function Star({
-  position,
-  deleteCoorBattery,
-  isStarToDelete,
-  resetFlag,
-  setResetFlag,
-}) {
-  return (
-    <mesh position={position}>
-      <Coin
-        position={position}
-        deleteCoorBattery={deleteCoorBattery}
-        isStarToDelete={isStarToDelete}
-        resetFlag={resetFlag}
-        setResetFlag={setResetFlag}
-      />
-    </mesh>
-  );
-}
 const ThreeDMatrix = ({
-  row,
-  col,
-  batteryPosition,
-  obstaclePosition,
-  robotStartPosition,
-  robotEndPosition,
-  hintArray,
-  resetFlag,
-  setResetFlag,
+  levelConfig,
   showHint,
   setShowHint,
+}: {
+  levelConfig: IGameConfig;
+  showHint: boolean;
+  setShowHint: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
-  const [filterBatteryPosition, setFilterBatteryPosition] =
-    useState(batteryPosition);
-  const [deleteCoorBattery, setDeleteCoorBattery] = useState([]);
-  const [isWin, setIsWin] = useState(false);
-  const [cameraPosition, setCameraPosition] = useState([2, 5, 7]);
-  const [tryCount, setTryCount] = useState(1);
+  const cameraRef = useRef();
+  const orbit = useRef<any>();
+  const {
+    row,
+    col,
+    robotStartPosition,
+    robotEndPosition,
+    obstaclePosition,
+    batteryPosition,
+    initialDirectionRobot,
+    gridTheme,
+    environment,
+  } = levelConfig;
+  const boxOffeset = row / 2 + 0.5;
 
   return (
     <div className="h-screen w-full bg-blue-700">
-      <Canvas camera={{ position: cameraPosition }}>
-        <ambientLight />
+      <Canvas>
+        <ambientLight intensity={0.9} />
         <spotLight
           intensity={0.9}
-          angle={0.1}
+          angle={0.4}
           penumbra={1}
-          position={[10, 15, 10]}
+          position={[10, 10, 10]}
           castShadow
         />
-        <Space position={[0, 4, -17]} />
-        <Plane position={[-17, 6, -20]} />
-        <Robot
-          row={row}
-          col={col}
-          robotStartPosition={robotStartPosition}
-          robotEndPosition={robotEndPosition}
-          batteryPosition={batteryPosition}
-          filterBatteryPosition={filterBatteryPosition}
-          setFilterBatteryPosition={setFilterBatteryPosition}
-          obstaclePosition={obstaclePosition}
-          resetFlag={resetFlag}
-          setResetFlag={setResetFlag}
-          setDeleteCoorBattery={setDeleteCoorBattery}
-          isWin={isWin}
-          setIsWin={setIsWin}
-          cameraPosition={cameraPosition}
-          setCameraPosition={setCameraPosition}
-          tryCount={tryCount}
-          setTryCount={setTryCount}
-          hintArray={hintArray}
-          showHint={showHint}
-          setShowHint={setShowHint}
+        <CameraHandler />
+        <gridHelper
+          args={[row, col, gridTheme.gridLines, gridTheme.gridLines]}
         />
-        <OrbitControls
-          enablePan={false}
-          minPolarAngle={0}
-          maxPolarAngle={Math.PI / 2.5}
-        />
-        <gridHelper args={[row, col, "red", "red", "red"]} />
-        <mesh
-          position={[0, -0.01, 0]}
+        <RoundedBox
+          args={[row + 0.2, col + 0.2, 0.15]}
           rotation={[Math.PI / 2, 0, 0]}
-          scale={[row, col, 2]}
+          radius={0.1}
+          position={[0, -0.08, 0]}
         >
-          <planeBufferGeometry />
-          <meshBasicMaterial color="orange" side={DoubleSide} />
-        </mesh>
-        {obstaclePosition &&
-          obstaclePosition.map((value, rowIndex) => {
-            const x = value[0] - boxOffset - 0.5;
-            const z = -(value[1] - boxOffset - 0.5);
-            const position = [x, 0.3, z];
-            return <Box key={`${x}-${z}`} position={position} />;
-          })}
-        {batteryPosition &&
-          batteryPosition.map((value, rowIndex) => {
-            const x = value[0] - boxOffset - 0.5;
-            const z = -(value[1] - boxOffset - 0.5);
-            const position = [x, 0, z];
-            const isStarToDelete = useRef(false);
-            return (
-              <Star
-                position={position}
-                deleteCoorBattery={deleteCoorBattery}
-                isStarToDelete={isStarToDelete}
-                resetFlag={resetFlag}
-                setResetFlag={setResetFlag}
-              />
-            );
-          })}
-        <Stats />
-        <SpaceTwo position={[15, 0, 7]} />
-        <Space position={[0, 4, 27]} />
+          <meshLambertMaterial attach="material" color={gridTheme.gridTop} />
+        </RoundedBox>
+        <RoundedBox
+          args={[row + 0.2, col + 0.2, 0.35]}
+          rotation={[Math.PI / 2, 0, 0]}
+          radius={0.1}
+          position={[0, -0.28, 0]}
+        >
+          <meshLambertMaterial attach="material" color={gridTheme.gridBottom} />
+        </RoundedBox>
+        {/*environment */ environment()}
+        {obstaclePosition?.map((pos, i) => {
+          return (
+            <mesh
+              key={i}
+              position={[boxOffeset - pos[1], 0.25, -boxOffeset + pos[0]]}
+            >
+              <boxGeometry args={[1, 0.5, 1]} />
+              <meshStandardMaterial color={gridTheme.obstacle} />
+            </mesh>
+          );
+        })}
+        {batteryPosition?.map((pos, i) => {
+          return (
+            <Star
+              key={i}
+              position={[
+                boxOffeset - pos[1] - 0.1,
+                0,
+                -boxOffeset + pos[0] + 0.6,
+              ]}
+            />
+          );
+        })}
+        <Robot
+          startPos={[
+            boxOffeset - robotStartPosition[1],
+            -0.1,
+            -boxOffeset + robotStartPosition[0],
+          ]}
+          endPos={[0, 0, 0]}
+          face={initialDirectionRobot}
+        />
       </Canvas>
     </div>
   );

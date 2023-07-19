@@ -1,12 +1,14 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { IGameConfig } from "../../Interface/IGameConfig";
+import * as GridThemes from "../Themes/GridThemes";
+import * as EnvironmentThemes from "../Themes/EnvironmentThemes";
 
 const initialState: IGameConfig[] = [
   {
-    row: 10,
-    col: 10,
-    robotStartPosition: { x: 4, y: 2 },
-    robotEndPosition: { x: 10, y: 10 },
+    row: 7,
+    col: 7,
+    robotStartPosition: [4, 2],
+    robotEndPosition: [7, 7],
     obstaclePosition: [
       [4, 7],
       [7, 7],
@@ -20,14 +22,15 @@ const initialState: IGameConfig[] = [
     ],
     initialDirectionRobot: "TOP",
     hintArray: ["LEFT", "FORWARD"],
-    environment: "space",
+    gridTheme: GridThemes.whiteBlue,
+    environment: EnvironmentThemes.SpaceCraft,
     blocks: ["move_block"],
   },
   {
-    row: 10,
-    col: 10,
-    robotStartPosition: { x: 4, y: 2 },
-    robotEndPosition: { x: 10, y: 10 },
+    row: 7,
+    col: 7,
+    robotStartPosition: [4, 2],
+    robotEndPosition: [7, 7],
     obstaclePosition: [
       [4, 7],
       [7, 7],
@@ -41,14 +44,15 @@ const initialState: IGameConfig[] = [
     ],
     initialDirectionRobot: "TOP",
     hintArray: ["LEFT", "FORWARD"],
-    environment: "space",
+    gridTheme: GridThemes.whiteBlue,
+    environment: EnvironmentThemes.SpaceCraft,
     blocks: ["move_block", "turn_block"],
   },
   {
     row: 10,
     col: 10,
-    robotStartPosition: { x: 4, y: 2 },
-    robotEndPosition: { x: 10, y: 10 },
+    robotStartPosition: [4, 2],
+    robotEndPosition: [7, 7],
     obstaclePosition: [
       [4, 7],
       [7, 7],
@@ -62,7 +66,8 @@ const initialState: IGameConfig[] = [
     ],
     initialDirectionRobot: "TOP",
     hintArray: ["LEFT", "FORWARD"],
-    environment: "space",
+    gridTheme: GridThemes.orangeBrown,
+    environment: EnvironmentThemes.ParkNight,
     blocks: ["move_block", "turn_block", "repeat_block"],
   },
 ];

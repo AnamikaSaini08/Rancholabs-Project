@@ -20,6 +20,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "src/Components/3d/Robot.d.ts"],
+  "include": ["src", "src/Components/GltfModels/Robot.d.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

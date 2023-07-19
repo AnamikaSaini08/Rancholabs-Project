@@ -1103,7 +1103,9 @@ type GLTFResult = GLTF & {
 };
 
 export function SpaceTwo(props: JSX.IntrinsicElements["group"]) {
-  const { nodes, materials } = useGLTF("/scene.gltf") as GLTFResult;
+  const { nodes, materials } = useGLTF(
+    "./Assets/spaceBack2/scene.gltf"
+  ) as GLTFResult;
   return (
     <group {...props} dispose={null}>
       <group
@@ -5433,4 +5435,4 @@ export function SpaceTwo(props: JSX.IntrinsicElements["group"]) {
   );
 }
 
-useGLTF.preload("./Assets/spaceBack2/scene-transformed.glb");
+useGLTF.preload("./Assets/spaceBack2/scene.gltf");

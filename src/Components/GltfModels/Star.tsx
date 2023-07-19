@@ -11,6 +11,7 @@ import * as THREE from "three";
 import React, { Ref, useRef } from "react";
 import { useGLTF, useAnimations } from "@react-three/drei";
 import { GLTF } from "three-stdlib";
+import { IStar } from "../../Interface/3dItems";
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -28,16 +29,18 @@ type GLTFResult = GLTF & {
 type ActionName = "starAction";
 type GLTFActions = Record<ActionName, THREE.AnimationAction>;
 
-export function Coin(props: JSX.IntrinsicElements["group"]) {
+export function Star({ position }: any) {
   const group = useRef<THREE.Group>();
-  const { nodes, materials, animations } = useGLTF("/scene.gltf") as GLTFResult;
+  const { nodes, materials, animations } = useGLTF(
+    "./Assets/star/scene.gltf"
+  ) as GLTFResult;
   const { actions } = useAnimations(animations, group);
   return (
-    <group ref={group as Ref<THREE.Group>} {...props} dispose={null}>
+    <group ref={group as Ref<THREE.Group>} position={position} dispose={null}>
       <group name="Sketchfab_Scene">
         <group name="Sketchfab_model" rotation={[-Math.PI / 2, 0, 0]}>
           <group name="Root">
-            <group name="star" position={[0, 0.601, 0.418]} scale={8}>
+            <group name="star" position={[0, 0.601, 0.418]} scale={25}>
               <mesh
                 name="star_0"
                 geometry={nodes.star_0.geometry}
@@ -61,4 +64,4 @@ export function Coin(props: JSX.IntrinsicElements["group"]) {
   );
 }
 
-useGLTF.preload("./Assets/coin/scene.gltf");
+useGLTF.preload("./Assets/star/scene.gltf");

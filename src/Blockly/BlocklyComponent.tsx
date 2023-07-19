@@ -10,9 +10,17 @@ import { addBlockInstruction } from "../utils/Slice/blocklyInstructionSlice";
 import { generateCode } from "../utils/generateBlocklyCode";
 
 Blockly.setLocale(locale);
-
+const initialBlocklyValues = {
+  readOnly: false,
+  trashcan: true,
+  move: {
+    scrollbars: true,
+    drag: true,
+    wheel: true,
+  },
+};
 function BlocklyComponent(props: IBlocklyConfig): JSX.Element {
-  const { readOnly, trashcan, move, setResetFlag } = props;
+  const { readOnly, trashcan, move } = initialBlocklyValues;
   const blocklyDiv = useRef<HTMLDivElement>(null);
   const toolbox = useRef<HTMLDivElement>(null);
   const primaryWorkspace = useRef<Blockly.WorkspaceSvg | null>(null);
@@ -20,7 +28,6 @@ function BlocklyComponent(props: IBlocklyConfig): JSX.Element {
   let commandArray: string[] = [];
 
   const generateBlocklyCode = () => {
-    setResetFlag(false);
     if (primaryWorkspace.current) {
       commandArray = generateCode(
         primaryWorkspace.current,
