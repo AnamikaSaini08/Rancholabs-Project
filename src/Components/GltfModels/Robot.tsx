@@ -11,9 +11,11 @@ import * as THREE from "three";
 import React, { Ref, useEffect, useRef, useState } from "react";
 import { useGLTF, useAnimations } from "@react-three/drei";
 import { GLTF } from "three-stdlib";
-import blocklyInstructionSlice from "../../utils/Slice/blocklyInstructionSlice";
-import { UseSelector, useSelector } from "react-redux/es/hooks/useSelector";
+import  { resetBlocklyInstruction } from "../../utils/Slice/blocklyInstructionSlice";
+import { useSelector } from "react-redux/es/hooks/useSelector";
 import { useFrame } from "react-three-fiber";
+import { useDispatch } from "react-redux";
+import { checkIsGameWin } from "../../utils/Functions/GameEndFun";
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -43,17 +45,27 @@ export function Robot({
   obstaclePosition,
   boxOffset,
   filterBatteryPosition,
+  batteryPosition,
   setFilterBatteryPosition,
-  setDeleteCoorBattery
+  setDeleteCoorBattery,
+  isReset,
+  setIsReset,
+  isNextLevel,
+  setIsNextLevel
 }: {
-  startPos: [x: number, y: number, z: number];
+  startPos: [number,  number, number];
   endPos: [x: number, y: number, z: number];
   face: "TOP" | "BOTTOM" | "LEFT" | "RIGHT";
   obstaclePosition:[number,number][];
   boxOffset: number;
   filterBatteryPosition: [number , number][];
+  batteryPosition: [number,number][];
   setFilterBatteryPosition : any;
   setDeleteCoorBattery: any;
+  isReset:boolean;
+  setIsReset: React.Dispatch<React.SetStateAction<boolean>>;
+  isNextLevel:boolean;
+  setIsNextLevel: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   let blocklyInstruction = useSelector(
     (store: any) => store.blocklyInstruction.blockInstructionArray
@@ -67,22 +79,36 @@ export function Robot({
     z: startPos[2],
   });
   const [robotFace, setRobotFace] = useState(face);
-
-  console.log(position);
-
   const group = useRef<THREE.Group>();
   const { nodes, materials, animations } = useGLTF(
     "./Assets/robot/scene.gltf"
   ) as GLTFResult;
   const { actions } = useAnimations(animations, group);
+  const robot: any = group.current;
+  const dispatch = useDispatch();
+
 
   useEffect(() => {
     actions["Take 001"]?.play();
-    if (face === "BOTTOM") setRotation(2 * (Math.PI / 2));
-    else if (face === "RIGHT") setRotation(3 * (Math.PI / 2));
-    else if (face === "TOP") setRotation(0 * (Math.PI / 2));
-    else if (face === "LEFT") setRotation(1 * (Math.PI / 2));
   }, []);
+  useEffect(()=>{
+    if(isReset)
+    {
+      setCurrentIndex(0);
+      setPosition({ x: startPos[0],
+        y: startPos[1], 
+        z: startPos[2],});
+      (robotFace==="LEFT") && setRotation(3 * (Math.PI / 2));
+      (robotFace==="RIGHT") && setRotation(1 * (Math.PI / 2));
+      (robotFace==="BOTTOM") && setRotation(2 * (Math.PI / 2));
+      
+      robot.position.x = startPos[0];
+      robot.position.z = startPos[2];
+      robot.position.y = startPos[1];
+      dispatch(resetBlocklyInstruction([]));
+      setIsReset(false);
+    }
+  },[isReset])
 
   const checkBatteryPosition = (
     filterBatteryPosition:[number,number][],
@@ -92,8 +118,6 @@ export function Robot({
     isBatteryZ:number
   ) => {
     const tempfilterBatteryPosition = filterBatteryPosition.filter(([x, y]) => {
-      console.log("----- ",boxOffset-x,-boxOffset+y);
-      console.log("++++++++++++ ",isBatteryX,isBatteryZ);
       const isDeleted =( boxOffset-x  === isBatteryX && (-boxOffset+y) === isBatteryZ);
       if (isDeleted) {
         setDeleteCoorBattery([isBatteryX, isBatteryZ]);
@@ -104,10 +128,14 @@ export function Robot({
   };
 
   useFrame(() => {
-    const robot: any = group.current;
-    console.log(position);
     let direction;
     if (currentIndex < blocklyInstruction.length) {
+      if(checkIsGameWin(filterBatteryPosition))
+      {
+        //setIsNextLevel(true);
+        console.log("Win ");
+      
+      }
       direction = blocklyInstruction[currentIndex];
       switch (robotFace) {
         case "TOP":

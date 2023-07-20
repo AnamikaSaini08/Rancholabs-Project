@@ -9,6 +9,9 @@ const Home = () => {
   const [levelConfig, setLevelConfig] = useState<IGameConfig>(
     gamesConfig[gameLevel - 1]
   );
+  useEffect(()=>{
+    setLevelConfig(gamesConfig[gameLevel - 1]);
+  },[gameLevel,gamesConfig]);
 
   return (
     <section className="h-[100vh] w-[100vw] grid grid-cols-2">

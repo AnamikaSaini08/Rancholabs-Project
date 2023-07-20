@@ -15,9 +15,7 @@ const initialState: IGameConfig[] = [
       [2,7]
     ],
     batteryPosition: [
-      [3, 2],
-      [4, 4],
-      [4, 3],
+      [2, 5],
     ],
     initialDirectionRobot: "TOP",
     hintArray: ["LEFT", "FORWARD"],
@@ -28,7 +26,7 @@ const initialState: IGameConfig[] = [
   {
     row: 7,
     col: 7,
-    robotStartPosition: [2, 4],
+    robotStartPosition: [2, 1],
     robotEndPosition: [7, 7],
     obstaclePosition: [
       [4, 7],
@@ -38,8 +36,7 @@ const initialState: IGameConfig[] = [
     ],
     batteryPosition: [
       [2, 2],
-      [4, 4],
-      [4, 3],
+     
     ],
     initialDirectionRobot: "TOP",
     hintArray: ["LEFT", "FORWARD"],
@@ -48,9 +45,9 @@ const initialState: IGameConfig[] = [
     blocks: ["move_block", "turn_block"],
   },
   {
-    row: 10,
-    col: 10,
-    robotStartPosition: [4, 2],
+    row: 7,
+    col: 7,
+    robotStartPosition: [1, 1],
     robotEndPosition: [7, 7],
     obstaclePosition: [
       [4, 7],

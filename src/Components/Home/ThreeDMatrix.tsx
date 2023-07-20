@@ -6,7 +6,7 @@ import {
   RoundedBox,
 } from "@react-three/drei";
 import { IGameConfig } from "../../Interface/IGameConfig";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Star } from "../GltfModels/Star";
 import { Robot } from "../GltfModels/Robot";
 import { CameraHandler } from "../3d/CameraHandler";
@@ -16,10 +16,14 @@ const ThreeDMatrix = ({
   levelConfig,
   showHint,
   setShowHint,
+  isReset,
+  setIsReset
 }: {
   levelConfig: IGameConfig;
   showHint: boolean;
   setShowHint: React.Dispatch<React.SetStateAction<boolean>>;
+  isReset: boolean,
+  setIsReset: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   const cameraRef = useRef();
   const orbit = useRef<any>();
@@ -37,6 +41,27 @@ const ThreeDMatrix = ({
   const boxOffeset = row / 2 + 0.5;
   const [filterBatteryPosition,setFilterBatteryPosition] = useState(batteryPosition);
   const [deleteCoorBattery,setDeleteCoorBattery] = useState([]);
+  const [isNextLevel , setIsNextLevel] = useState(false);
+  const [startPos ,setStartPos] = useState([
+    boxOffeset - robotStartPosition[0],
+    -0.1,
+    -boxOffeset + robotStartPosition[1],
+  ])
+
+  useEffect(()=>{
+    //First this useEffect execute then children useEffect call
+    if(isReset){
+      setFilterBatteryPosition(batteryPosition);
+      setDeleteCoorBattery([]);
+    }
+  },[isReset])
+  useEffect(()=>{
+    setFilterBatteryPosition(batteryPosition);
+    setDeleteCoorBattery([]);
+    setStartPos([ boxOffeset - robotStartPosition[0],
+      -0.1,
+      -boxOffeset + robotStartPosition[1],])
+  },[levelConfig])
 
   return (
     <div className="h-screen w-full bg-blue-700">
@@ -95,18 +120,19 @@ const ThreeDMatrix = ({
           );
         })}
         <Robot
-          startPos={[
-            boxOffeset - robotStartPosition[0],
-            -0.1,
-            -boxOffeset + robotStartPosition[1],
-          ]}
+          startPos={startPos}
           endPos={[0, 0, 0]}
           face={initialDirectionRobot}
           obstaclePosition={obstaclePosition}
           boxOffset={boxOffeset}
           filterBatteryPosition={filterBatteryPosition}
+          batteryPosition={batteryPosition}
           setFilterBatteryPosition={setFilterBatteryPosition}
           setDeleteCoorBattery={setDeleteCoorBattery}
+          isReset={isReset}
+          setIsReset ={setIsReset}
+          isNextLevel = {isNextLevel}
+          setIsNextLevel ={setIsNextLevel}
         />
       </Canvas>
     </div>

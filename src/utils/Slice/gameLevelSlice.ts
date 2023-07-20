@@ -8,7 +8,7 @@ const gameLevelSlice = createSlice({
     robotSpeed: 0.02,
   },
   reducers: {
-    increaseGameLevel: (state, action) => {
+    increaseGameLevel: (state) => {
       state.gameLevel = state.gameLevel + 1;
     },
     changeGameState: (state, action) => {
