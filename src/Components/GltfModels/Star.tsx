@@ -8,10 +8,11 @@ Title: Star
 */
 
 import * as THREE from "three";
-import React, { Ref, useRef } from "react";
+import React, { Ref, useRef ,useEffect} from "react";
 import { useGLTF, useAnimations } from "@react-three/drei";
 import { GLTF } from "three-stdlib";
-import { IStar } from "../../Interface/3dItems";
+import { StarProps } from "../../Interface/starProps";
+import { motion } from "framer-motion-3d";
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -29,18 +30,61 @@ type GLTFResult = GLTF & {
 type ActionName = "starAction";
 type GLTFActions = Record<ActionName, THREE.AnimationAction>;
 
-export function Star({ position }: any) {
+export const Star = ({ position}:any) => {
   const group = useRef<THREE.Group>();
   const { nodes, materials, animations } = useGLTF(
     "./Assets/star/scene.gltf"
   ) as GLTFResult;
-  const { actions } = useAnimations(animations, group);
+  const { actions,names } = useAnimations(animations, group);
+  const isStarToDelete = useRef(false);
+
+  useEffect(() => {
+    actions[names[0]].play();
+  }, []);
+
+  // useEffect(() => {
+  //   if(shouldAnimate()){
+  //     console.log("TUREEE")
+  //     isStarToDelete.current = true;
+  //   }
+  // }, [deleteCoorBattery]);
+
+  // const shouldAnimate = ():boolean => {
+  //   return (
+  //     deleteCoorBattery.length &&
+  //     starPosition[0] === deleteCoorBattery[0] &&
+  //     starPosition[2] === deleteCoorBattery[1]
+  //   );
+  // };
+  const transition = isStarToDelete.current ? { delay:1.5, duration: 3} : null;
+
   return (
     <group ref={group as Ref<THREE.Group>} position={position} dispose={null}>
       <group name="Sketchfab_Scene">
         <group name="Sketchfab_model" rotation={[-Math.PI / 2, 0, 0]}>
           <group name="Root">
-            <group name="star" position={[0, 0.601, 0.418]} scale={25}>
+            {isStarToDelete.current ? (<motion.group name="star" position={[0, 0.601, 0.418]} scale={25}>
+              <mesh
+                name="star_0"
+                geometry={nodes.star_0.geometry}
+                material={materials.glassesFrames}
+                animate={{ y: 7, z: 2 }}
+                transition={transition}
+                initial={{ y: 0, z: 0 }}
+              />
+              <mesh
+                name="star_1"
+                geometry={nodes.star_1.geometry}
+                material={materials.lens}
+              />
+              <mesh
+                name="star_2"
+                geometry={nodes.star_2.geometry}
+                material={materials.Star}
+              />
+            </motion.group>)
+            :
+            (<group name="star" position={[0, 0.601, 0.418]} scale={25}>
               <mesh
                 name="star_0"
                 geometry={nodes.star_0.geometry}
@@ -56,7 +100,7 @@ export function Star({ position }: any) {
                 geometry={nodes.star_2.geometry}
                 material={materials.Star}
               />
-            </group>
+            </group>)}
           </group>
         </group>
       </group>

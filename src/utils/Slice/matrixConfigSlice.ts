@@ -7,13 +7,12 @@ const initialState: IGameConfig[] = [
   {
     row: 7,
     col: 7,
-    robotStartPosition: [4, 2],
+    robotStartPosition: [2,4 ],
     robotEndPosition: [7, 7],
     obstaclePosition: [
       [4, 7],
-      [7, 7],
-      [2, 2],
-      [5, 3],
+     
+      [2,7]
     ],
     batteryPosition: [
       [3, 2],
@@ -29,16 +28,16 @@ const initialState: IGameConfig[] = [
   {
     row: 7,
     col: 7,
-    robotStartPosition: [4, 2],
+    robotStartPosition: [2, 4],
     robotEndPosition: [7, 7],
     obstaclePosition: [
       [4, 7],
-      [7, 7],
-      [2, 2],
+      [2, 7],
+      
       [5, 3],
     ],
     batteryPosition: [
-      [3, 2],
+      [2, 2],
       [4, 4],
       [4, 3],
     ],

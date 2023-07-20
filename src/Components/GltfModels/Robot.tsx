@@ -40,10 +40,20 @@ export function Robot({
   startPos,
   endPos,
   face,
+  obstaclePosition,
+  boxOffset,
+  filterBatteryPosition,
+  setFilterBatteryPosition,
+  setDeleteCoorBattery
 }: {
   startPos: [x: number, y: number, z: number];
   endPos: [x: number, y: number, z: number];
   face: "TOP" | "BOTTOM" | "LEFT" | "RIGHT";
+  obstaclePosition:[number,number][];
+  boxOffset: number;
+  filterBatteryPosition: [number , number][];
+  setFilterBatteryPosition : any;
+  setDeleteCoorBattery: any;
 }) {
   let blocklyInstruction = useSelector(
     (store: any) => store.blocklyInstruction.blockInstructionArray
@@ -74,23 +84,78 @@ export function Robot({
     else if (face === "LEFT") setRotation(1 * (Math.PI / 2));
   }, []);
 
+  const checkBatteryPosition = (
+    filterBatteryPosition:[number,number][],
+    setFilterBatteryPosition:any,
+    setDeleteCoorBattery:any,
+    isBatteryX:number,
+    isBatteryZ:number
+  ) => {
+    const tempfilterBatteryPosition = filterBatteryPosition.filter(([x, y]) => {
+      console.log("----- ",boxOffset-x,-boxOffset+y);
+      console.log("++++++++++++ ",isBatteryX,isBatteryZ);
+      const isDeleted =( boxOffset-x  === isBatteryX && (-boxOffset+y) === isBatteryZ);
+      if (isDeleted) {
+        setDeleteCoorBattery([isBatteryX, isBatteryZ]);
+      }
+      return !isDeleted;
+    });
+    setFilterBatteryPosition(tempfilterBatteryPosition);
+  };
+
   useFrame(() => {
     const robot: any = group.current;
+    console.log(position);
     let direction;
     if (currentIndex < blocklyInstruction.length) {
       direction = blocklyInstruction[currentIndex];
-      console.log(direction);
-      console.log(robotFace);
-      console.log(currentIndex);
       switch (robotFace) {
         case "TOP":
           if (direction === "BACKWARD") {
+            if (
+              (robot.position.z <= -(boxOffset-1)) ||
+              obstaclePosition.some(([x, y]) => {
+                return (
+                  boxOffset - x === position.x &&
+                  -boxOffset + y === position.z -1 
+                );
+              })
+            ) {
+              alert("Game End");
+              return;
+            }
+            checkBatteryPosition(
+              filterBatteryPosition,
+              setFilterBatteryPosition,
+              setDeleteCoorBattery,
+              position.x,
+              position.z-1
+            );
             robot.position.z -= stepDistance;
             if (robot.position.z < position.z - 1) {
               setCurrentIndex((prevIndex) => prevIndex + 1);
               setPosition({ ...position, z: position.z - 1 });
             }
           } else if (direction === "FORWARD") {
+            if (
+              (robot.position.z >= (boxOffset-1) ||
+              obstaclePosition.some(([x, y]) => {
+                return (
+                  boxOffset - x === position.x &&
+                  -boxOffset + y === position.z + 1
+                );
+              }))
+            ) {
+              alert("Game End");
+              return;
+            }
+            checkBatteryPosition(
+              filterBatteryPosition,
+              setFilterBatteryPosition,
+              setDeleteCoorBattery,
+              position.x,
+              position.z+1
+            );
             robot.position.z += stepDistance;
             if (robot.position.z > position.z + 1) {
               setCurrentIndex((prevIndex) => prevIndex + 1);
@@ -114,12 +179,50 @@ export function Robot({
           break;
         case "BOTTOM":
           if (direction === "BACKWARD") {
+            if (
+              (robot.position.z >= (boxOffset-1) ||
+              obstaclePosition.some(([x, y]) => {
+                return (
+                  boxOffset - x === position.x  &&
+                  -boxOffset + y === position.z + 1
+                );
+              }))
+            ) {
+              alert("Game End");
+              return;
+            }
+            checkBatteryPosition(
+              filterBatteryPosition,
+              setFilterBatteryPosition,
+              setDeleteCoorBattery,
+              position.x,
+              position.z+1
+            );
             robot.position.z += stepDistance;
             if (robot.position.z > position.z + 1) {
               setCurrentIndex((prevIndex) => prevIndex + 1);
               setPosition({ ...position, z: position.z + 1 });
             }
           } else if (direction === "FORWARD") {
+            if (
+              (robot.position.z <= -(boxOffset-1) ||
+              obstaclePosition.some(([x, y]) => {
+                return (
+                  boxOffset - x === position.x  &&
+                  -boxOffset + y === position.z -1 
+                );
+              }))
+            ) {
+              alert("Game End");
+              return;
+            }
+            checkBatteryPosition(
+              filterBatteryPosition,
+              setFilterBatteryPosition,
+              setDeleteCoorBattery,
+              position.x,
+              position.z-1
+            );
             robot.position.z -= stepDistance;
             if (robot.position.z < position.z - 1) {
               setCurrentIndex((prevIndex) => prevIndex + 1);
@@ -143,12 +246,50 @@ export function Robot({
           break;
         case "LEFT":
           if (direction === "BACKWARD") {
+            if (
+              (robot.position.x <= -(boxOffset-1)) ||
+              obstaclePosition.some(([x, y]) => {
+                return (
+                  boxOffset - x === position.x - 1 &&
+                  -boxOffset + y === position.z
+                );
+              })
+            ) {
+              alert("Game End");
+              return;
+            }
+            checkBatteryPosition(
+              filterBatteryPosition,
+              setFilterBatteryPosition,
+              setDeleteCoorBattery,
+              position.x-1,
+              position.z
+            );
             robot.position.x -= stepDistance;
             if (robot.position.x < position.x - 1) {
               setCurrentIndex((prevIndex) => prevIndex + 1);
               setPosition({ ...position, x: position.x - 1 });
             }
           } else if (direction === "FORWARD") {
+            if (
+              (robot.position.x >= boxOffset-1) ||
+              obstaclePosition.some(([x, y]) => {
+                return (
+                  boxOffset - x === position.x + 1 &&
+                  -boxOffset + y === position.z
+                );
+              })
+            ) {
+              alert("Game End");
+              return;
+            }
+            checkBatteryPosition(
+              filterBatteryPosition,
+              setFilterBatteryPosition,
+              setDeleteCoorBattery,
+              position.x+1,
+              position.z
+            );
             robot.position.x += stepDistance;
             if (robot.position.x > position.x + 1) {
               setCurrentIndex((prevIndex) => prevIndex + 1);
@@ -172,12 +313,50 @@ export function Robot({
           break;
         case "RIGHT":
           if (direction === "FORWARD") {
+            if (
+              (robot.position.x <= -(boxOffset-1)) ||
+              obstaclePosition.some(([x, y]) => {
+                return (
+                  boxOffset - x === position.x - 1 &&
+                  -boxOffset + y === position.z
+                );
+              })
+            ) {
+              alert("Game End");
+              return;
+            }
+            checkBatteryPosition(
+              filterBatteryPosition,
+              setFilterBatteryPosition,
+              setDeleteCoorBattery,
+              position.x-1,
+              position.z
+            );
             robot.position.x -= stepDistance;
             if (robot.position.x < position.x - 1) {
               setCurrentIndex((prevIndex) => prevIndex + 1);
               setPosition({ ...position, x: position.x - 1 });
             }
           } else if (direction === "BACKWARD") {
+            if (
+              (robot.position.x >= (boxOffset-1)) ||
+              obstaclePosition.some(([x, y]) => {
+                return (
+                  boxOffset - x === position.x + 1 &&
+                  -boxOffset + y === position.z
+                );
+              })
+            ) {
+              alert("Game End");
+              return;
+            }
+            checkBatteryPosition(
+              filterBatteryPosition,
+              setFilterBatteryPosition,
+              setDeleteCoorBattery,
+              position.x+1,
+              position.z
+            );
             robot.position.x += stepDistance;
             if (robot.position.x > position.x + 1) {
               setCurrentIndex((prevIndex) => prevIndex + 1);

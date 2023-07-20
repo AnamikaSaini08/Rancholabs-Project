@@ -10,6 +10,7 @@ import { useRef } from "react";
 import { Star } from "../GltfModels/Star";
 import { Robot } from "../GltfModels/Robot";
 import { CameraHandler } from "../3d/CameraHandler";
+import { useState } from "react";
 
 const ThreeDMatrix = ({
   levelConfig,
@@ -34,6 +35,8 @@ const ThreeDMatrix = ({
     environment,
   } = levelConfig;
   const boxOffeset = row / 2 + 0.5;
+  const [filterBatteryPosition,setFilterBatteryPosition] = useState(batteryPosition);
+  const [deleteCoorBattery,setDeleteCoorBattery] = useState([]);
 
   return (
     <div className="h-screen w-full bg-blue-700">
@@ -71,33 +74,39 @@ const ThreeDMatrix = ({
           return (
             <mesh
               key={i}
-              position={[boxOffeset - pos[1], 0.25, -boxOffeset + pos[0]]}
+              position={[boxOffeset - pos[0], 0.25, -boxOffeset + pos[1]]}
             >
               <boxGeometry args={[1, 0.5, 1]} />
               <meshStandardMaterial color={gridTheme.obstacle} />
             </mesh>
           );
         })}
-        {batteryPosition?.map((pos, i) => {
+        {filterBatteryPosition?.map((pos, i) => {
+           const starPosition = [boxOffeset - pos[0], 0, -boxOffeset + pos[1]];
           return (
             <Star
               key={i}
               position={[
-                boxOffeset - pos[1] - 0.1,
+                boxOffeset - pos[0] - 0.1,
                 0,
-                -boxOffeset + pos[0] + 0.6,
+                -boxOffeset + pos[1] + 0.6,
               ]}
             />
           );
         })}
         <Robot
           startPos={[
-            boxOffeset - robotStartPosition[1],
+            boxOffeset - robotStartPosition[0],
             -0.1,
-            -boxOffeset + robotStartPosition[0],
+            -boxOffeset + robotStartPosition[1],
           ]}
           endPos={[0, 0, 0]}
           face={initialDirectionRobot}
+          obstaclePosition={obstaclePosition}
+          boxOffset={boxOffeset}
+          filterBatteryPosition={filterBatteryPosition}
+          setFilterBatteryPosition={setFilterBatteryPosition}
+          setDeleteCoorBattery={setDeleteCoorBattery}
         />
       </Canvas>
     </div>
