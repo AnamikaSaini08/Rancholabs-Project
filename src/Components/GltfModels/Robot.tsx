@@ -16,6 +16,7 @@ import { useSelector } from "react-redux/es/hooks/useSelector";
 import { useFrame } from "react-three-fiber";
 import { useDispatch } from "react-redux";
 import { checkIsGameWin } from "../../utils/Functions/GameEndFun";
+import { increaseGameLevel } from "../../utils/Slice/gameLevelSlice";
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -92,6 +93,13 @@ export function Robot({
     actions["Take 001"]?.play();
   }, []);
   useEffect(()=>{
+    setPosition({
+      x: startPos[0],
+      y: startPos[1],
+      z: startPos[2],
+    })
+  },[startPos])
+  useEffect(()=>{
     if(isReset)
     {
       setCurrentIndex(0);
@@ -109,6 +117,21 @@ export function Robot({
       setIsReset(false);
     }
   },[isReset])
+  console.log("Robot - ",position);
+  console.log("Start ",startPos)
+  const dispatchRef = useRef(dispatch);
+  useEffect(() => {
+    const { current: dispatch } = dispatchRef;
+    console.log("AAYYAAAAA HHHHHHHHHHHHHHHH")
+    if (isNextLevel) {
+      console.log("Executeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
+      dispatch(increaseGameLevel());
+      dispatch(resetBlocklyInstruction([]));
+      //setCurrentIndex(0);
+      setIsNextLevel(false);
+      setRotation(0);
+    }
+  }, [isNextLevel]);
 
   const checkBatteryPosition = (
     filterBatteryPosition:[number,number][],
@@ -132,7 +155,7 @@ export function Robot({
     if (currentIndex < blocklyInstruction.length) {
       if(checkIsGameWin(filterBatteryPosition))
       {
-        //setIsNextLevel(true);
+        setIsNextLevel(true);
         console.log("Win ");
       
       }

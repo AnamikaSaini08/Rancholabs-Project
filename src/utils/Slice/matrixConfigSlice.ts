@@ -63,7 +63,7 @@ const initialState: IGameConfig[] = [
     initialDirectionRobot: "TOP",
     hintArray: ["LEFT", "FORWARD"],
     gridTheme: GridThemes.orangeBrown,
-    environment: EnvironmentThemes.ParkNight,
+    environment: EnvironmentThemes.SpaceCraft,
     blocks: ["move_block", "turn_block", "repeat_block"],
   },
 ];

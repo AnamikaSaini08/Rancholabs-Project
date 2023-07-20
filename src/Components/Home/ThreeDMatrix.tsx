@@ -60,7 +60,8 @@ const ThreeDMatrix = ({
     setDeleteCoorBattery([]);
     setStartPos([ boxOffeset - robotStartPosition[0],
       -0.1,
-      -boxOffeset + robotStartPosition[1],])
+      -boxOffeset + robotStartPosition[1]])
+    console.log(startPos)
   },[levelConfig])
 
   return (
