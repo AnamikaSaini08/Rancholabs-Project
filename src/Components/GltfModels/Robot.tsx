@@ -16,8 +16,9 @@ import { useSelector } from "react-redux/es/hooks/useSelector";
 import { useFrame } from "react-three-fiber";
 import { useDispatch } from "react-redux";
 import { checkIsGameWin } from "../../utils/Functions/GameEndFun";
-import { increaseGameLevel } from "../../utils/Slice/gameLevelSlice";
+import { changeGameState, increaseGameLevel } from "../../utils/Slice/gameLevelSlice";
 import { handleGameResult } from "../../utils/constant";
+import { filter } from "blockly/core/events/utils";
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -89,6 +90,8 @@ export function Robot({
   const { actions } = useAnimations(animations, group);
   const robot: any = group.current;
   const dispatch = useDispatch();
+  const gameState = useSelector((store:any)=>store.gameLevel.gameState);
+  console.log("State ",gameState)
 
 
   useEffect(() => {
@@ -102,6 +105,7 @@ export function Robot({
     })
   },[startPos])
   useEffect(()=>{
+    console.log("FAce -- ",robotFace);
     if(isReset)
     {
       setCurrentIndex(0);
@@ -116,6 +120,7 @@ export function Robot({
       robot.position.z = startPos[2];
       robot.position.y = startPos[1];
       dispatch(resetBlocklyInstruction([]));
+      dispatch(changeGameState("START"));
       setIsAlertShown(false);
       setIsReset(false);
     }
@@ -129,6 +134,7 @@ export function Robot({
         setIsNextLevel(false);
         dispatch(increaseGameLevel());
         dispatch(resetBlocklyInstruction([]));
+        dispatch(changeGameState("START"));
         setCurrentIndex(0);
         setRotation(0);
         setIsAlertShown(false);
@@ -141,7 +147,10 @@ export function Robot({
   }, [isNextLevel]);
 
   const boundaryAlertCall =():void=>{
-    setTimeout(() => {
+    setIsAlertShown(true);
+    setCurrentIndex(blocklyInstruction.length);
+    dispatch(changeGameState("END"));
+    const time = setTimeout(() => {
       handleGameResult(
         {status: "Oopss..",
         message: "Obstacles Reach. Try Again!!",
@@ -150,8 +159,6 @@ export function Robot({
         setIsNextLevel}
        );
      }, 1000);
-     setIsAlertShown(true);
-     setCurrentIndex(blocklyInstruction.length);
   }
   const checkBatteryPosition = (
     filterBatteryPosition:[number,number][],
@@ -173,9 +180,7 @@ export function Robot({
   useFrame(() => {
     let direction;
     if (currentIndex < blocklyInstruction.length) {
-      console.log("Cur ",currentIndex)
-      if(!isAlertShown){
-      if(checkIsGameWin(filterBatteryPosition))
+      if(gameState==="PLAY" && checkIsGameWin(filterBatteryPosition))
       {
         setTimeout(() => {
             handleGameResult(
@@ -187,19 +192,9 @@ export function Robot({
               );
             }, 2000);
             setIsAlertShown(true);
+            dispatch(changeGameState("END"));
+            setCurrentIndex(blocklyInstruction.length-1);
       }
-      else if(currentIndex ==blocklyInstruction.length-1){
-        setTimeout(() => {
-          handleGameResult(
-            {status: "Oopss..",
-            message: "You Fail. Try Again!!",
-            icon: "warning",
-            result: "Try Again",
-            setIsNextLevel}
-           );
-         }, 1000);
-         setIsAlertShown(true);
-       }}
       direction = blocklyInstruction[currentIndex];
       switch (robotFace) {
         case "TOP":
@@ -486,9 +481,21 @@ export function Robot({
             }
           }
           break;
-      }
-    }
-  });
+        }
+  }
+  else if(gameState==="PLAY" && filterBatteryPosition.length){
+    setTimeout(() => {
+      handleGameResult(
+        {status: "Oopss..",
+        message: "You Fail. Try Again!!",
+        icon: "warning",
+        result: "Try Again",
+        setIsNextLevel}
+       );
+     }, 1000);
+     setIsAlertShown(true);
+     dispatch(changeGameState("END"));
+   }});
 
   return (
     <group

@@ -5,9 +5,10 @@ import { javascriptGenerator } from "blockly/javascript";
 import locale from "blockly/msg/en";
 import "blockly/blocks";
 import { IBlocklyConfig } from "../Interface/IBlockyConfig";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addBlockInstruction } from "../utils/Slice/blocklyInstructionSlice";
 import { generateCode } from "../utils/generateBlocklyCode";
+import { changeGameState } from "../utils/Slice/gameLevelSlice";
 
 Blockly.setLocale(locale);
 const initialBlocklyValues = {
@@ -34,6 +35,7 @@ function BlocklyComponent(props: IBlocklyConfig): JSX.Element {
         javascriptGenerator
       );
       dispatch(addBlockInstruction(commandArray));
+      dispatch(changeGameState("PLAY"));
     }
   };
 
