@@ -112,10 +112,8 @@ export function Robot({
       setPosition({ x: startPos[0],
         y: startPos[1], 
         z: startPos[2],});
-      (robotFace==="LEFT") && setRotation(3 * (Math.PI / 2));
-      (robotFace==="RIGHT") && setRotation(1 * (Math.PI / 2));
-      (robotFace==="BOTTOM") && setRotation(2 * (Math.PI / 2));
-      
+      setRotation(0 * (Math.PI / 2));
+      setRobotFace("TOP");
       robot.position.x = startPos[0];
       robot.position.z = startPos[2];
       robot.position.y = startPos[1];
@@ -179,6 +177,7 @@ export function Robot({
 
   useFrame(() => {
     let direction;
+    console.log("FACEEEEEEEEEEEEEEEEEEE ",robotFace);
     if (currentIndex < blocklyInstruction.length) {
       if(gameState==="PLAY" && checkIsGameWin(filterBatteryPosition))
       {
@@ -193,7 +192,7 @@ export function Robot({
             }, 2000);
             setIsAlertShown(true);
             dispatch(changeGameState("END"));
-            setCurrentIndex(blocklyInstruction.length-1);
+            //setCurrentIndex(blocklyInstruction.length);
       }
       direction = blocklyInstruction[currentIndex];
       switch (robotFace) {
