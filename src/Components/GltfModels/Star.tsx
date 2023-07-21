@@ -8,10 +8,9 @@ Title: Star
 */
 
 import * as THREE from "three";
-import React, { Ref, useRef ,useEffect} from "react";
-import { useGLTF, useAnimations } from "@react-three/drei";
+import { Ref, useRef ,useEffect, useState} from "react";
+import { useGLTF } from "@react-three/drei";
 import { GLTF } from "three-stdlib";
-import { StarProps } from "../../Interface/starProps";
 import { motion } from "framer-motion-3d";
 
 type GLTFResult = GLTF & {
@@ -28,49 +27,78 @@ type GLTFResult = GLTF & {
 };
 
 type ActionName = "starAction";
-type GLTFActions = Record<ActionName, THREE.AnimationAction>;
 
-export const Star = ({ position}:any) => {
+export const Star = ({ position,starPosition,deleteCoorBattery,isReset,nextLevelUpdated,setNextLevelUpdated}:{
+  position: [number,number,number];
+  starPosition:[number,number,number];
+  deleteCoorBattery: [number,number];
+  isReset:boolean;
+  nextLevelUpdated: boolean;
+  setNextLevelUpdated: React.Dispatch<React.SetStateAction<boolean>>;
+}) => {
   const group = useRef<THREE.Group>();
-  const { nodes, materials, animations } = useGLTF(
+  const { nodes, materials } = useGLTF(
     "./Assets/star/scene.gltf"
   ) as GLTFResult;
-  const { actions,names } = useAnimations(animations, group);
+
   const isStarToDelete = useRef(false);
+  const [isVisible,setIsVisible] = useState(true);
+
+  useEffect(()=>{
+    if(nextLevelUpdated){
+      setIsVisible(true);
+      setNextLevelUpdated(false);
+    }
+    console.log("Eber")
+  },[nextLevelUpdated])
 
   useEffect(() => {
-    actions[names[0]].play();
-  }, []);
-
-  // useEffect(() => {
-  //   if(shouldAnimate()){
-  //     console.log("TUREEE")
-  //     isStarToDelete.current = true;
-  //   }
-  // }, [deleteCoorBattery]);
-
-  // const shouldAnimate = ():boolean => {
-  //   return (
-  //     deleteCoorBattery.length &&
-  //     starPosition[0] === deleteCoorBattery[0] &&
-  //     starPosition[2] === deleteCoorBattery[1]
-  //   );
-  // };
-  const transition = isStarToDelete.current ? { delay:1.5, duration: 3} : null;
+    if(shouldAnimate()){
+      console.log("TUREEE")
+      isStarToDelete.current = true;
+    }
+  }, [deleteCoorBattery]);
+  const resetStar = () :void=> {
+    isStarToDelete.current = false;
+    setIsVisible(true);
+  };
+  useEffect(() => {
+    if (isReset) {
+      resetStar();
+    }
+  }, [isReset])
+  const shouldAnimate = ():boolean => {
+    return (
+      deleteCoorBattery.length &&
+      starPosition[0] === deleteCoorBattery[0] &&
+      starPosition[2] === deleteCoorBattery[1]
+    );
+  };
+  const transition:any = isStarToDelete.current ? {delay:1, repeat: 1,
+    repeatType: "reverse", duration: 1.4, stiffness: 100} : null;
 
   return (
-    <group ref={group as Ref<THREE.Group>} position={position} dispose={null}>
+    <>{isVisible && <group ref={group as Ref<THREE.Group>} position={position} dispose={null}>
       <group name="Sketchfab_Scene">
         <group name="Sketchfab_model" rotation={[-Math.PI / 2, 0, 0]}>
           <group name="Root">
-            {isStarToDelete.current ? (<motion.group name="star" position={[0, 0.601, 0.418]} scale={25}>
+            {isStarToDelete.current ? (<motion.group name="star" 
+            position={[0, 0.601, 0.418]} scale={25}
+            animate={
+                 { z: 2, rotateZ: 2 * Math.PI ,opacity: 0,} // Rotate 360 degrees (2 * Math.PI) when z is 2
+               
+            }
+            transition={transition}
+            onAnimationComplete={() => {
+              isStarToDelete.current = false; // Hide the star by setting isStarToDelete to false
+              setIsVisible(false);
+            }}
+            
+            >
               <mesh
                 name="star_0"
                 geometry={nodes.star_0.geometry}
                 material={materials.glassesFrames}
-                animate={{ y: 7, z: 2 }}
-                transition={transition}
-                initial={{ y: 0, z: 0 }}
               />
               <mesh
                 name="star_1"
@@ -84,7 +112,7 @@ export const Star = ({ position}:any) => {
               />
             </motion.group>)
             :
-            (<group name="star" position={[0, 0.601, 0.418]} scale={25}>
+            (<group name="star" position={[0, 0.601, 0.418]} scale={25} >
               <mesh
                 name="star_0"
                 geometry={nodes.star_0.geometry}
@@ -104,7 +132,7 @@ export const Star = ({ position}:any) => {
           </group>
         </group>
       </group>
-    </group>
+    </group>}</>
   );
 }
 

@@ -9,13 +9,15 @@ const Home = () => {
   const [levelConfig, setLevelConfig] = useState<IGameConfig>(
     gamesConfig[gameLevel - 1]
   );
+  const [nextLevelUpdated,setNextLevelUpdated] = useState(false);
   useEffect(()=>{
     setLevelConfig(gamesConfig[gameLevel - 1]);
+    setNextLevelUpdated(true);
   },[gameLevel,gamesConfig]);
 
   return (
     <section className="h-[100vh] w-[100vw] grid grid-cols-2">
-      <GameLevel levelConfig={levelConfig} />
+      <GameLevel levelConfig={levelConfig} nextLevelUpdated={nextLevelUpdated} setNextLevelUpdated={setNextLevelUpdated}/>
     </section>
   );
 };

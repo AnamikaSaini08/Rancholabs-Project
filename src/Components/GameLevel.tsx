@@ -5,7 +5,11 @@ import "../blocks/customblocks";
 import "../generator/generator";
 import ThreeDMatrix from "./Home/ThreeDMatrix";
 
-export const GameLevel = ({ levelConfig }: { levelConfig: IGameConfig }) => {
+export const GameLevel = ({ levelConfig ,nextLevelUpdated,setNextLevelUpdated}: 
+  { levelConfig: IGameConfig;
+    nextLevelUpdated: boolean;
+    setNextLevelUpdated:any;
+  }) => {
   const [showHint, setShowHint] = useState(false);
   const [full3DScreen, setFull3DScreen] = useState(false);
   const [isReset, setIsReset] = useState(false);
@@ -54,6 +58,8 @@ export const GameLevel = ({ levelConfig }: { levelConfig: IGameConfig }) => {
           setShowHint={setShowHint}
           isReset = {isReset}
           setIsReset = {setIsReset}
+          nextLevelUpdated={nextLevelUpdated}
+          setNextLevelUpdated={setNextLevelUpdated}
         />
       </div>
     </div>

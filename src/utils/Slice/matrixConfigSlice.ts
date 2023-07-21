@@ -16,6 +16,7 @@ const initialState: IGameConfig[] = [
     ],
     batteryPosition: [
       [2, 5],
+      [2,6],
     ],
     initialDirectionRobot: "TOP",
     hintArray: ["LEFT", "FORWARD"],

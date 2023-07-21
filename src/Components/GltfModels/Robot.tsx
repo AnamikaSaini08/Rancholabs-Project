@@ -122,15 +122,20 @@ export function Robot({
   const dispatchRef = useRef(dispatch);
   useEffect(() => {
     const { current: dispatch } = dispatchRef;
-    console.log("AAYYAAAAA HHHHHHHHHHHHHHHH")
-    if (isNextLevel) {
-      console.log("Executeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
-      dispatch(increaseGameLevel());
-      dispatch(resetBlocklyInstruction([]));
-      //setCurrentIndex(0);
-      setIsNextLevel(false);
-      setRotation(0);
-    }
+   
+    const time = setTimeout(() => {
+      if (isNextLevel) {
+        setIsNextLevel(false);
+        dispatch(increaseGameLevel());
+        dispatch(resetBlocklyInstruction([]));
+        setCurrentIndex(0);
+        setRotation(0);
+      }
+    }, 5000);
+  
+    return () => {
+      clearTimeout(time);
+    };
   }, [isNextLevel]);
 
   const checkBatteryPosition = (

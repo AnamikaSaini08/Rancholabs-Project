@@ -17,13 +17,17 @@ const ThreeDMatrix = ({
   showHint,
   setShowHint,
   isReset,
-  setIsReset
+  setIsReset,
+  nextLevelUpdated,
+  setNextLevelUpdated
 }: {
   levelConfig: IGameConfig;
   showHint: boolean;
   setShowHint: React.Dispatch<React.SetStateAction<boolean>>;
   isReset: boolean,
   setIsReset: React.Dispatch<React.SetStateAction<boolean>>;
+  nextLevelUpdated:boolean;
+  setNextLevelUpdated:React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   const cameraRef = useRef();
   const orbit = useRef<any>();
@@ -107,7 +111,7 @@ const ThreeDMatrix = ({
             </mesh>
           );
         })}
-        {filterBatteryPosition?.map((pos, i) => {
+        {batteryPosition?.map((pos, i) => {
            const starPosition = [boxOffeset - pos[0], 0, -boxOffeset + pos[1]];
           return (
             <Star
@@ -117,6 +121,11 @@ const ThreeDMatrix = ({
                 0,
                 -boxOffeset + pos[1] + 0.6,
               ]}
+              starPosition={starPosition}
+              deleteCoorBattery={deleteCoorBattery}
+              isReset ={isReset}
+              nextLevelUpdated={nextLevelUpdated}
+              setNextLevelUpdated={setNextLevelUpdated}
             />
           );
         })}
