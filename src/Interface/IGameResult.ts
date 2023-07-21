@@ -3,6 +3,6 @@ export interface IGameResult {
   message: string;
   icon: any;
   result: string;
-  hint: boolean;
+  hint?: boolean;
   setIsNextLevel: any;
 }

@@ -17,6 +17,7 @@ import { useFrame } from "react-three-fiber";
 import { useDispatch } from "react-redux";
 import { checkIsGameWin } from "../../utils/Functions/GameEndFun";
 import { increaseGameLevel } from "../../utils/Slice/gameLevelSlice";
+import { handleGameResult } from "../../utils/constant";
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -80,6 +81,7 @@ export function Robot({
     z: startPos[2],
   });
   const [robotFace, setRobotFace] = useState(face);
+  const [isAlertShown,setIsAlertShown] = useState(false);
   const group = useRef<THREE.Group>();
   const { nodes, materials, animations } = useGLTF(
     "./Assets/robot/scene.gltf"
@@ -114,11 +116,10 @@ export function Robot({
       robot.position.z = startPos[2];
       robot.position.y = startPos[1];
       dispatch(resetBlocklyInstruction([]));
+      setIsAlertShown(false);
       setIsReset(false);
     }
   },[isReset])
-  console.log("Robot - ",position);
-  console.log("Start ",startPos)
   const dispatchRef = useRef(dispatch);
   useEffect(() => {
     const { current: dispatch } = dispatchRef;
@@ -130,6 +131,7 @@ export function Robot({
         dispatch(resetBlocklyInstruction([]));
         setCurrentIndex(0);
         setRotation(0);
+        setIsAlertShown(false);
       }
     }, 5000);
   
@@ -138,6 +140,19 @@ export function Robot({
     };
   }, [isNextLevel]);
 
+  const boundaryAlertCall =():void=>{
+    setTimeout(() => {
+      handleGameResult(
+        {status: "Oopss..",
+        message: "Obstacles Reach. Try Again!!",
+        icon: "warning",
+        result: "Try Again",
+        setIsNextLevel}
+       );
+     }, 1000);
+     setIsAlertShown(true);
+     setCurrentIndex(blocklyInstruction.length);
+  }
   const checkBatteryPosition = (
     filterBatteryPosition:[number,number][],
     setFilterBatteryPosition:any,
@@ -158,12 +173,33 @@ export function Robot({
   useFrame(() => {
     let direction;
     if (currentIndex < blocklyInstruction.length) {
+      console.log("Cur ",currentIndex)
+      if(!isAlertShown){
       if(checkIsGameWin(filterBatteryPosition))
       {
-        setIsNextLevel(true);
-        console.log("Win ");
-      
+        setTimeout(() => {
+            handleGameResult(
+              {status: "Hurrah",
+              message: "You won the level!",
+              icon: "success",
+              result: "Next",
+               setIsNextLevel,}
+              );
+            }, 2000);
+            setIsAlertShown(true);
       }
+      else if(currentIndex ==blocklyInstruction.length-1){
+        setTimeout(() => {
+          handleGameResult(
+            {status: "Oopss..",
+            message: "You Fail. Try Again!!",
+            icon: "warning",
+            result: "Try Again",
+            setIsNextLevel}
+           );
+         }, 1000);
+         setIsAlertShown(true);
+       }}
       direction = blocklyInstruction[currentIndex];
       switch (robotFace) {
         case "TOP":
@@ -177,8 +213,10 @@ export function Robot({
                 );
               })
             ) {
-              alert("Game End");
-              return;
+              if(!isAlertShown){
+                boundaryAlertCall();
+                 return;
+              }
             }
             checkBatteryPosition(
               filterBatteryPosition,
@@ -202,8 +240,10 @@ export function Robot({
                 );
               }))
             ) {
-              alert("Game End");
-              return;
+              if(!isAlertShown){
+                boundaryAlertCall();
+                 return;
+              }
             }
             checkBatteryPosition(
               filterBatteryPosition,
@@ -244,8 +284,10 @@ export function Robot({
                 );
               }))
             ) {
-              alert("Game End");
-              return;
+              if(!isAlertShown){
+                boundaryAlertCall();
+                 return;
+              }
             }
             checkBatteryPosition(
               filterBatteryPosition,
@@ -269,8 +311,10 @@ export function Robot({
                 );
               }))
             ) {
-              alert("Game End");
-              return;
+              if(!isAlertShown){
+                boundaryAlertCall();
+                 return;
+              }
             }
             checkBatteryPosition(
               filterBatteryPosition,
@@ -311,8 +355,10 @@ export function Robot({
                 );
               })
             ) {
-              alert("Game End");
-              return;
+              if(!isAlertShown){
+                boundaryAlertCall();
+                 return;
+              }
             }
             checkBatteryPosition(
               filterBatteryPosition,
@@ -336,8 +382,10 @@ export function Robot({
                 );
               })
             ) {
-              alert("Game End");
-              return;
+              if(!isAlertShown){
+                boundaryAlertCall();
+                 return;
+              }
             }
             checkBatteryPosition(
               filterBatteryPosition,
@@ -378,8 +426,10 @@ export function Robot({
                 );
               })
             ) {
-              alert("Game End");
-              return;
+              if(!isAlertShown){
+                boundaryAlertCall();
+                 return;
+              }
             }
             checkBatteryPosition(
               filterBatteryPosition,
@@ -403,8 +453,10 @@ export function Robot({
                 );
               })
             ) {
-              alert("Game End");
-              return;
+              if(!isAlertShown){
+                boundaryAlertCall();
+                 return;
+              }
             }
             checkBatteryPosition(
               filterBatteryPosition,
