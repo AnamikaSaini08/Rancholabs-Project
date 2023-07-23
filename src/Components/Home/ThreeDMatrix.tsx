@@ -9,8 +9,8 @@ import { IGameConfig } from "../../Interface/IGameConfig";
 import { useEffect, useRef } from "react";
 import { Star } from "../GltfModels/Star";
 import { Robot } from "../GltfModels/Robot";
-import { CameraHandler } from "../3d/CameraHandler";
 import { useState } from "react";
+import { ThreeDProps } from "../../Interface/ThreeDMatrixProps";
 
 const ThreeDMatrix = ({
   levelConfig,
@@ -19,16 +19,8 @@ const ThreeDMatrix = ({
   isReset,
   setIsReset,
   nextLevelUpdated,
-  setNextLevelUpdated
-}: {
-  levelConfig: IGameConfig;
-  showHint: boolean;
-  setShowHint: React.Dispatch<React.SetStateAction<boolean>>;
-  isReset: boolean,
-  setIsReset: React.Dispatch<React.SetStateAction<boolean>>;
-  nextLevelUpdated:boolean;
-  setNextLevelUpdated:React.Dispatch<React.SetStateAction<boolean>>;
-}) => {
+  setNextLevelUpdated,
+}: ThreeDProps) => {
   const cameraRef = useRef();
   const orbit = useRef<any>();
   const {
@@ -43,30 +35,33 @@ const ThreeDMatrix = ({
     environment,
   } = levelConfig;
   const boxOffeset = row / 2 + 0.5;
-  const [filterBatteryPosition,setFilterBatteryPosition] = useState(batteryPosition);
-  const [deleteCoorBattery,setDeleteCoorBattery] = useState([]);
-  const [isNextLevel , setIsNextLevel] = useState(false);
-  const [startPos ,setStartPos] = useState([
+  const [filterBatteryPosition, setFilterBatteryPosition] =
+    useState(batteryPosition);
+  const [deleteCoorBattery, setDeleteCoorBattery] = useState([]);
+  const [isNextLevel, setIsNextLevel] = useState(false);
+  const [startPos, setStartPos] = useState([
     boxOffeset - robotStartPosition[0],
     -0.1,
     -boxOffeset + robotStartPosition[1],
-  ])
+  ]);
 
-  useEffect(()=>{
+  useEffect(() => {
     //First this useEffect execute then children useEffect call
-    if(isReset){
+    if (isReset) {
       setFilterBatteryPosition(batteryPosition);
       setDeleteCoorBattery([]);
     }
-  },[isReset])
-  useEffect(()=>{
+  }, [isReset]);
+  useEffect(() => {
     setFilterBatteryPosition(batteryPosition);
     setDeleteCoorBattery([]);
-    setStartPos([ boxOffeset - robotStartPosition[0],
+    setStartPos([
+      boxOffeset - robotStartPosition[0],
       -0.1,
-      -boxOffeset + robotStartPosition[1]])
-    console.log(startPos)
-  },[levelConfig])
+      -boxOffeset + robotStartPosition[1],
+    ]);
+    console.log(startPos);
+  }, [levelConfig]);
 
   return (
     <div className="h-screen w-full bg-blue-700">
@@ -79,7 +74,19 @@ const ThreeDMatrix = ({
           position={[10, 10, 10]}
           castShadow
         />
-        <CameraHandler />
+        <PerspectiveCamera
+          ref={cameraRef}
+          makeDefault
+          position={[0, 5, -13]}
+          fov={40}
+        />
+        <OrbitControls
+          ref={orbit}
+          minDistance={3}
+          maxDistance={30}
+          minPolarAngle={0}
+          maxPolarAngle={Math.PI / 2.3}
+        />
         <gridHelper
           args={[row, col, gridTheme.gridLines, gridTheme.gridLines]}
         />
@@ -112,7 +119,7 @@ const ThreeDMatrix = ({
           );
         })}
         {batteryPosition?.map((pos, i) => {
-           const starPosition = [boxOffeset - pos[0], 0, -boxOffeset + pos[1]];
+          const starPosition = [boxOffeset - pos[0], 0, -boxOffeset + pos[1]];
           return (
             <Star
               key={i}
@@ -123,7 +130,7 @@ const ThreeDMatrix = ({
               ]}
               starPosition={starPosition}
               deleteCoorBattery={deleteCoorBattery}
-              isReset ={isReset}
+              isReset={isReset}
               nextLevelUpdated={nextLevelUpdated}
               setNextLevelUpdated={setNextLevelUpdated}
             />
@@ -140,9 +147,11 @@ const ThreeDMatrix = ({
           setFilterBatteryPosition={setFilterBatteryPosition}
           setDeleteCoorBattery={setDeleteCoorBattery}
           isReset={isReset}
-          setIsReset ={setIsReset}
-          isNextLevel = {isNextLevel}
-          setIsNextLevel ={setIsNextLevel}
+          setIsReset={setIsReset}
+          isNextLevel={isNextLevel}
+          setIsNextLevel={setIsNextLevel}
+          orbitRef={orbit}
+          cameraRef={cameraRef}
         />
       </Canvas>
     </div>

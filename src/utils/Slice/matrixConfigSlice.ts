@@ -37,12 +37,14 @@ const initialState: IGameConfig[] = [
     ],
     batteryPosition: [
       [2, 2],
-     
+      [2,3],
+      [2,5],
+      [3,3]
     ],
     initialDirectionRobot: "TOP",
     hintArray: ["LEFT", "FORWARD"],
     gridTheme: GridThemes.whiteBlue,
-    environment: EnvironmentThemes.SpaceCraft,
+    environment: EnvironmentThemes.NightForest,
     blocks: ["move_block", "turn_block"],
   },
   {

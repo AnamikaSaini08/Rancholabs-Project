@@ -11,12 +11,15 @@ import * as THREE from "three";
 import React, { Ref, useEffect, useRef, useState } from "react";
 import { useGLTF, useAnimations } from "@react-three/drei";
 import { GLTF } from "three-stdlib";
-import  { resetBlocklyInstruction } from "../../utils/Slice/blocklyInstructionSlice";
+import { resetBlocklyInstruction } from "../../utils/Slice/blocklyInstructionSlice";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import { useFrame } from "react-three-fiber";
 import { useDispatch } from "react-redux";
 import { checkIsGameWin } from "../../utils/Functions/GameEndFun";
-import { changeGameState, increaseGameLevel } from "../../utils/Slice/gameLevelSlice";
+import {
+  changeGameState,
+  increaseGameLevel,
+} from "../../utils/Slice/gameLevelSlice";
 import { handleGameResult } from "../../utils/constant";
 import { filter } from "blockly/core/events/utils";
 
@@ -54,21 +57,25 @@ export function Robot({
   isReset,
   setIsReset,
   isNextLevel,
-  setIsNextLevel
+  setIsNextLevel,
+  orbitRef,
+  cameraRef,
 }: {
-  startPos: [number,  number, number];
+  startPos: [number, number, number];
   endPos: [x: number, y: number, z: number];
   face: "TOP" | "BOTTOM" | "LEFT" | "RIGHT";
-  obstaclePosition:[number,number][];
+  obstaclePosition: [number, number][];
   boxOffset: number;
-  filterBatteryPosition: [number , number][];
-  batteryPosition: [number,number][];
-  setFilterBatteryPosition : any;
+  filterBatteryPosition: [number, number][];
+  batteryPosition: [number, number][];
+  setFilterBatteryPosition: any;
   setDeleteCoorBattery: any;
-  isReset:boolean;
+  isReset: boolean;
   setIsReset: React.Dispatch<React.SetStateAction<boolean>>;
-  isNextLevel:boolean;
+  isNextLevel: boolean;
   setIsNextLevel: React.Dispatch<React.SetStateAction<boolean>>;
+  orbitRef: React.MutableRefObject<any>;
+  cameraRef: React.MutableRefObject<any>;
 }) {
   let blocklyInstruction = useSelector(
     (store: any) => store.blocklyInstruction.blockInstructionArray
@@ -82,7 +89,7 @@ export function Robot({
     z: startPos[2],
   });
   const [robotFace, setRobotFace] = useState(face);
-  const [isAlertShown,setIsAlertShown] = useState(false);
+  const [isAlertShown, setIsAlertShown] = useState(false);
   const group = useRef<THREE.Group>();
   const { nodes, materials, animations } = useGLTF(
     "./Assets/robot/scene.gltf"
@@ -90,28 +97,55 @@ export function Robot({
   const { actions } = useAnimations(animations, group);
   const robot: any = group.current;
   const dispatch = useDispatch();
-  const gameState = useSelector((store:any)=>store.gameLevel.gameState);
-  console.log("State ",gameState)
+  const gameState = useSelector((store: any) => store.gameLevel.gameState);
 
+  const degreesToRadians = (degrees: any) => degrees * (Math.PI / 180);
 
   useEffect(() => {
     actions["Take 001"]?.play();
   }, []);
-  useEffect(()=>{
+
+  useEffect(() => {
+    // setting up first camera position
+    if (gameState === "PLAY") {
+      orbitRef.current.target.x = robot.position.x;
+      orbitRef.current.target.y = robot.position.y;
+      orbitRef.current.target.z = robot.position.z;
+      cameraRef.current.position.x = startPos[0] + 5;
+      cameraRef.current.position.y = startPos[1] + 3;
+      cameraRef.current.position.z = startPos[2] + 3;
+    }
+    if (gameState === "END") {
+      cameraRef.current.position.x = robot.position.x;
+      cameraRef.current.position.y = robot.position.y + 2;
+      cameraRef.current.position.z = robot.position.z - 5;
+      if (robotFace === "TOP") {
+        orbitRef.current.setAzimuthalAngle(4.14);
+      } else if (robotFace === "BOTTOM") {
+        orbitRef.current.setAzimuthalAngle(4.14);
+      } else if (robotFace === "LEFT") {
+        orbitRef.current.setAzimuthalAngle(2.57);
+      } else {
+        orbitRef.current.setAzimuthalAngle(-0.57);
+      }
+      orbitRef.current.update();
+    }
+  }, [gameState]);
+
+  //When Robot Start Position change- set robot position with startPosition
+  useEffect(() => {
     setPosition({
       x: startPos[0],
       y: startPos[1],
       z: startPos[2],
-    })
-  },[startPos])
-  useEffect(()=>{
-    console.log("FAce -- ",robotFace);
-    if(isReset)
-    {
+    });
+  }, [startPos]);
+  //When we click on reset button
+  useEffect(() => {
+    console.log("FAce -- ", robotFace);
+    if (isReset) {
       setCurrentIndex(0);
-      setPosition({ x: startPos[0],
-        y: startPos[1], 
-        z: startPos[2],});
+      setPosition({ x: startPos[0], y: startPos[1], z: startPos[2] });
       setRotation(0 * (Math.PI / 2));
       setRobotFace("TOP");
       robot.position.x = startPos[0];
@@ -122,11 +156,13 @@ export function Robot({
       setIsAlertShown(false);
       setIsReset(false);
     }
-  },[isReset])
+  }, [isReset]);
   const dispatchRef = useRef(dispatch);
+
+  //When Next level of game is loaded
   useEffect(() => {
     const { current: dispatch } = dispatchRef;
-   
+
     const time = setTimeout(() => {
       if (isNextLevel) {
         setIsNextLevel(false);
@@ -138,35 +174,37 @@ export function Robot({
         setIsAlertShown(false);
       }
     }, 5000);
-  
+
     return () => {
       clearTimeout(time);
     };
   }, [isNextLevel]);
 
-  const boundaryAlertCall =():void=>{
+  //Check robot movement in boundary condition
+  const boundaryAlertCall = (): void => {
     setIsAlertShown(true);
     setCurrentIndex(blocklyInstruction.length);
     dispatch(changeGameState("END"));
     const time = setTimeout(() => {
-      handleGameResult(
-        {status: "Oopss..",
+      handleGameResult({
+        status: "Oopss..",
         message: "Obstacles Reach. Try Again!!",
         icon: "warning",
         result: "Try Again",
-        setIsNextLevel}
-       );
-     }, 1000);
-  }
+        setIsNextLevel,
+      });
+    }, 1000);
+  };
   const checkBatteryPosition = (
-    filterBatteryPosition:[number,number][],
-    setFilterBatteryPosition:any,
-    setDeleteCoorBattery:any,
-    isBatteryX:number,
-    isBatteryZ:number
+    filterBatteryPosition: [number, number][],
+    setFilterBatteryPosition: any,
+    setDeleteCoorBattery: any,
+    isBatteryX: number,
+    isBatteryZ: number
   ) => {
     const tempfilterBatteryPosition = filterBatteryPosition.filter(([x, y]) => {
-      const isDeleted =( boxOffset-x  === isBatteryX && (-boxOffset+y) === isBatteryZ);
+      const isDeleted =
+        boxOffset - x === isBatteryX && -boxOffset + y === isBatteryZ;
       if (isDeleted) {
         setDeleteCoorBattery([isBatteryX, isBatteryZ]);
       }
@@ -177,39 +215,61 @@ export function Robot({
 
   useFrame(() => {
     let direction;
-    console.log("FACEEEEEEEEEEEEEEEEEEE ",robotFace);
+    console.log("AZZZZ", orbitRef.current.getAzimuthalAngle());
+    console.log("gamestate ", gameState);
+
+    // Handling camera animations
+    if (gameState === "PLAY") {
+      orbitRef.current.target.x = robot.position.x;
+      orbitRef.current.target.y = robot.position.y;
+      orbitRef.current.target.z = robot.position.z;
+    }
+    console.log("camera");
+
+    console.log(cameraRef.current.position.x);
+    console.log(cameraRef.current.position.y);
+    console.log(cameraRef.current.position.z);
+    console.log("Target");
+
+    console.log(orbitRef.current.target.x);
+    console.log(orbitRef.current.target.y);
+    console.log(orbitRef.current.target.z);
+
+    console.log("Robot");
+    console.log(robot.position.x);
+    console.log(robot.position.y);
+    console.log(robot.position.z);
     if (currentIndex < blocklyInstruction.length) {
-      if(gameState==="PLAY" && checkIsGameWin(filterBatteryPosition))
-      {
+      if (gameState === "PLAY" && checkIsGameWin(filterBatteryPosition)) {
         setTimeout(() => {
-            handleGameResult(
-              {status: "Hurrah",
-              message: "You won the level!",
-              icon: "success",
-              result: "Next",
-               setIsNextLevel,}
-              );
-            }, 2000);
-            setIsAlertShown(true);
-            dispatch(changeGameState("END"));
-            //setCurrentIndex(blocklyInstruction.length);
+          handleGameResult({
+            status: "Hurrah",
+            message: "You won the level!",
+            icon: "success",
+            result: "Next",
+            setIsNextLevel,
+          });
+        }, 2000);
+        setIsAlertShown(true);
+        dispatch(changeGameState("END"));
+        //setCurrentIndex(blocklyInstruction.length);
       }
       direction = blocklyInstruction[currentIndex];
       switch (robotFace) {
         case "TOP":
           if (direction === "BACKWARD") {
             if (
-              (robot.position.z <= -(boxOffset-1)) ||
+              robot.position.z <= -(boxOffset - 1) ||
               obstaclePosition.some(([x, y]) => {
                 return (
                   boxOffset - x === position.x &&
-                  -boxOffset + y === position.z -1 
+                  -boxOffset + y === position.z - 1
                 );
               })
             ) {
-              if(!isAlertShown){
+              if (!isAlertShown) {
                 boundaryAlertCall();
-                 return;
+                return;
               }
             }
             checkBatteryPosition(
@@ -217,26 +277,27 @@ export function Robot({
               setFilterBatteryPosition,
               setDeleteCoorBattery,
               position.x,
-              position.z-1
+              position.z - 1
             );
             robot.position.z -= stepDistance;
+            cameraRef.current.position.z -= stepDistance;
             if (robot.position.z < position.z - 1) {
               setCurrentIndex((prevIndex) => prevIndex + 1);
               setPosition({ ...position, z: position.z - 1 });
             }
           } else if (direction === "FORWARD") {
             if (
-              (robot.position.z >= (boxOffset-1) ||
+              robot.position.z >= boxOffset - 1 ||
               obstaclePosition.some(([x, y]) => {
                 return (
                   boxOffset - x === position.x &&
                   -boxOffset + y === position.z + 1
                 );
-              }))
+              })
             ) {
-              if(!isAlertShown){
+              if (!isAlertShown) {
                 boundaryAlertCall();
-                 return;
+                return;
               }
             }
             checkBatteryPosition(
@@ -244,14 +305,25 @@ export function Robot({
               setFilterBatteryPosition,
               setDeleteCoorBattery,
               position.x,
-              position.z+1
+              position.z + 1
             );
             robot.position.z += stepDistance;
+            cameraRef.current.position.z += stepDistance;
             if (robot.position.z > position.z + 1) {
               setCurrentIndex((prevIndex) => prevIndex + 1);
               setPosition({ ...position, z: position.z + 1 });
             }
           } else if (direction === "LEFT") {
+            const currentAngleInDegrees = THREE.MathUtils.radToDeg(
+              orbitRef.current.getAzimuthalAngle()
+            );
+            const newAngleInDegrees =
+              currentAngleInDegrees + 4 * stepDistance * 100;
+            orbitRef.current.setAzimuthalAngle(
+              degreesToRadians(newAngleInDegrees)
+            );
+            orbitRef.current.update();
+
             robot.rotation.y += stepDistance;
             if (robot.rotation.y > rotation + Math.PI / 2) {
               setRobotFace("LEFT");
@@ -259,6 +331,16 @@ export function Robot({
               setCurrentIndex((prevIndex) => prevIndex + 1);
             }
           } else if (direction === "RIGHT") {
+            const currentAngleInDegrees = THREE.MathUtils.radToDeg(
+              orbitRef.current.getAzimuthalAngle()
+            );
+            const newAngleInDegrees =
+              currentAngleInDegrees - 4 * stepDistance * 100;
+            orbitRef.current.setAzimuthalAngle(
+              degreesToRadians(newAngleInDegrees)
+            );
+            orbitRef.current.update();
+
             robot.rotation.y -= stepDistance;
             if (robot.rotation.y < rotation - Math.PI / 2) {
               setRobotFace("RIGHT");
@@ -270,17 +352,17 @@ export function Robot({
         case "BOTTOM":
           if (direction === "BACKWARD") {
             if (
-              (robot.position.z >= (boxOffset-1) ||
+              robot.position.z >= boxOffset - 1 ||
               obstaclePosition.some(([x, y]) => {
                 return (
-                  boxOffset - x === position.x  &&
+                  boxOffset - x === position.x &&
                   -boxOffset + y === position.z + 1
                 );
-              }))
+              })
             ) {
-              if(!isAlertShown){
+              if (!isAlertShown) {
                 boundaryAlertCall();
-                 return;
+                return;
               }
             }
             checkBatteryPosition(
@@ -288,26 +370,27 @@ export function Robot({
               setFilterBatteryPosition,
               setDeleteCoorBattery,
               position.x,
-              position.z+1
+              position.z + 1
             );
             robot.position.z += stepDistance;
+            cameraRef.current.position.z += stepDistance;
             if (robot.position.z > position.z + 1) {
               setCurrentIndex((prevIndex) => prevIndex + 1);
               setPosition({ ...position, z: position.z + 1 });
             }
           } else if (direction === "FORWARD") {
             if (
-              (robot.position.z <= -(boxOffset-1) ||
+              robot.position.z <= -(boxOffset - 1) ||
               obstaclePosition.some(([x, y]) => {
                 return (
-                  boxOffset - x === position.x  &&
-                  -boxOffset + y === position.z -1 
+                  boxOffset - x === position.x &&
+                  -boxOffset + y === position.z - 1
                 );
-              }))
+              })
             ) {
-              if(!isAlertShown){
+              if (!isAlertShown) {
                 boundaryAlertCall();
-                 return;
+                return;
               }
             }
             checkBatteryPosition(
@@ -315,14 +398,24 @@ export function Robot({
               setFilterBatteryPosition,
               setDeleteCoorBattery,
               position.x,
-              position.z-1
+              position.z - 1
             );
             robot.position.z -= stepDistance;
+            cameraRef.current.position.z -= stepDistance;
             if (robot.position.z < position.z - 1) {
               setCurrentIndex((prevIndex) => prevIndex + 1);
               setPosition({ ...position, z: position.z - 1 });
             }
           } else if (direction === "LEFT") {
+            const currentAngleInDegrees = THREE.MathUtils.radToDeg(
+              orbitRef.current.getAzimuthalAngle()
+            );
+            const newAngleInDegrees =
+              currentAngleInDegrees + 4 * stepDistance * 100;
+            orbitRef.current.setAzimuthalAngle(
+              degreesToRadians(newAngleInDegrees)
+            );
+            orbitRef.current.update();
             robot.rotation.y += stepDistance;
             if (robot.rotation.y > rotation + Math.PI / 2) {
               setRobotFace("RIGHT");
@@ -330,6 +423,15 @@ export function Robot({
               setCurrentIndex((prevIndex) => prevIndex + 1);
             }
           } else if (direction === "RIGHT") {
+            const currentAngleInDegrees = THREE.MathUtils.radToDeg(
+              orbitRef.current.getAzimuthalAngle()
+            );
+            const newAngleInDegrees =
+              currentAngleInDegrees - 4 * stepDistance * 100;
+            orbitRef.current.setAzimuthalAngle(
+              degreesToRadians(newAngleInDegrees)
+            );
+            orbitRef.current.update();
             robot.rotation.y -= stepDistance;
             if (robot.rotation.y < rotation - Math.PI / 2) {
               setRobotFace("LEFT");
@@ -341,7 +443,7 @@ export function Robot({
         case "LEFT":
           if (direction === "BACKWARD") {
             if (
-              (robot.position.x <= -(boxOffset-1)) ||
+              robot.position.x <= -(boxOffset - 1) ||
               obstaclePosition.some(([x, y]) => {
                 return (
                   boxOffset - x === position.x - 1 &&
@@ -349,26 +451,27 @@ export function Robot({
                 );
               })
             ) {
-              if(!isAlertShown){
+              if (!isAlertShown) {
                 boundaryAlertCall();
-                 return;
+                return;
               }
             }
             checkBatteryPosition(
               filterBatteryPosition,
               setFilterBatteryPosition,
               setDeleteCoorBattery,
-              position.x-1,
+              position.x - 1,
               position.z
             );
             robot.position.x -= stepDistance;
+            cameraRef.current.position.x -= stepDistance;
             if (robot.position.x < position.x - 1) {
               setCurrentIndex((prevIndex) => prevIndex + 1);
               setPosition({ ...position, x: position.x - 1 });
             }
           } else if (direction === "FORWARD") {
             if (
-              (robot.position.x >= boxOffset-1) ||
+              robot.position.x >= boxOffset - 1 ||
               obstaclePosition.some(([x, y]) => {
                 return (
                   boxOffset - x === position.x + 1 &&
@@ -376,24 +479,34 @@ export function Robot({
                 );
               })
             ) {
-              if(!isAlertShown){
+              if (!isAlertShown) {
                 boundaryAlertCall();
-                 return;
+                return;
               }
             }
             checkBatteryPosition(
               filterBatteryPosition,
               setFilterBatteryPosition,
               setDeleteCoorBattery,
-              position.x+1,
+              position.x + 1,
               position.z
             );
             robot.position.x += stepDistance;
+            cameraRef.current.position.x += stepDistance;
             if (robot.position.x > position.x + 1) {
               setCurrentIndex((prevIndex) => prevIndex + 1);
               setPosition({ ...position, x: position.x + 1 });
             }
           } else if (direction === "LEFT") {
+            const currentAngleInDegrees = THREE.MathUtils.radToDeg(
+              orbitRef.current.getAzimuthalAngle()
+            );
+            const newAngleInDegrees =
+              currentAngleInDegrees + 4 * stepDistance * 100;
+            orbitRef.current.setAzimuthalAngle(
+              degreesToRadians(newAngleInDegrees)
+            );
+            orbitRef.current.update();
             robot.rotation.y += stepDistance;
             if (robot.rotation.y > rotation + Math.PI / 2) {
               setRobotFace("BOTTOM");
@@ -401,6 +514,15 @@ export function Robot({
               setCurrentIndex((prevIndex) => prevIndex + 1);
             }
           } else if (direction === "RIGHT") {
+            const currentAngleInDegrees = THREE.MathUtils.radToDeg(
+              orbitRef.current.getAzimuthalAngle()
+            );
+            const newAngleInDegrees =
+              currentAngleInDegrees - 4 * stepDistance * 100;
+            orbitRef.current.setAzimuthalAngle(
+              degreesToRadians(newAngleInDegrees)
+            );
+            orbitRef.current.update();
             robot.rotation.y -= stepDistance;
             if (robot.rotation.y < rotation - Math.PI / 2) {
               setRobotFace("TOP");
@@ -412,7 +534,7 @@ export function Robot({
         case "RIGHT":
           if (direction === "FORWARD") {
             if (
-              (robot.position.x <= -(boxOffset-1)) ||
+              robot.position.x <= -(boxOffset - 1) ||
               obstaclePosition.some(([x, y]) => {
                 return (
                   boxOffset - x === position.x - 1 &&
@@ -420,26 +542,27 @@ export function Robot({
                 );
               })
             ) {
-              if(!isAlertShown){
+              if (!isAlertShown) {
                 boundaryAlertCall();
-                 return;
+                return;
               }
             }
             checkBatteryPosition(
               filterBatteryPosition,
               setFilterBatteryPosition,
               setDeleteCoorBattery,
-              position.x-1,
+              position.x - 1,
               position.z
             );
             robot.position.x -= stepDistance;
+            cameraRef.current.position.x -= stepDistance;
             if (robot.position.x < position.x - 1) {
               setCurrentIndex((prevIndex) => prevIndex + 1);
               setPosition({ ...position, x: position.x - 1 });
             }
           } else if (direction === "BACKWARD") {
             if (
-              (robot.position.x >= (boxOffset-1)) ||
+              robot.position.x >= boxOffset - 1 ||
               obstaclePosition.some(([x, y]) => {
                 return (
                   boxOffset - x === position.x + 1 &&
@@ -447,24 +570,34 @@ export function Robot({
                 );
               })
             ) {
-              if(!isAlertShown){
+              if (!isAlertShown) {
                 boundaryAlertCall();
-                 return;
+                return;
               }
             }
             checkBatteryPosition(
               filterBatteryPosition,
               setFilterBatteryPosition,
               setDeleteCoorBattery,
-              position.x+1,
+              position.x + 1,
               position.z
             );
             robot.position.x += stepDistance;
+            cameraRef.current.position.x += stepDistance;
             if (robot.position.x > position.x + 1) {
               setCurrentIndex((prevIndex) => prevIndex + 1);
               setPosition({ ...position, x: position.x + 1 });
             }
           } else if (direction === "LEFT") {
+            const currentAngleInDegrees = THREE.MathUtils.radToDeg(
+              orbitRef.current.getAzimuthalAngle()
+            );
+            const newAngleInDegrees =
+              currentAngleInDegrees + 4 * stepDistance * 100;
+            orbitRef.current.setAzimuthalAngle(
+              degreesToRadians(newAngleInDegrees)
+            );
+            orbitRef.current.update();
             robot.rotation.y += stepDistance;
             if (robot.rotation.y > rotation + Math.PI / 2) {
               setRobotFace("TOP");
@@ -472,6 +605,15 @@ export function Robot({
               setCurrentIndex((prevIndex) => prevIndex + 1);
             }
           } else if (direction === "RIGHT") {
+            const currentAngleInDegrees = THREE.MathUtils.radToDeg(
+              orbitRef.current.getAzimuthalAngle()
+            );
+            const newAngleInDegrees =
+              currentAngleInDegrees - 4 * stepDistance * 100;
+            orbitRef.current.setAzimuthalAngle(
+              degreesToRadians(newAngleInDegrees)
+            );
+            orbitRef.current.update();
             robot.rotation.y -= stepDistance;
             if (robot.rotation.y < rotation - Math.PI / 2) {
               setRobotFace("BOTTOM");
@@ -480,21 +622,21 @@ export function Robot({
             }
           }
           break;
-        }
-  }
-  else if(gameState==="PLAY" && filterBatteryPosition.length){
-    setTimeout(() => {
-      handleGameResult(
-        {status: "Oopss..",
-        message: "You Fail. Try Again!!",
-        icon: "warning",
-        result: "Try Again",
-        setIsNextLevel}
-       );
-     }, 1000);
-     setIsAlertShown(true);
-     dispatch(changeGameState("END"));
-   }});
+      }
+    } else if (gameState === "PLAY" && filterBatteryPosition.length) {
+      setTimeout(() => {
+        handleGameResult({
+          status: "Oopss..",
+          message: "You Fail. Try Again!!",
+          icon: "warning",
+          result: "Try Again",
+          setIsNextLevel,
+        });
+      }, 1000);
+      setIsAlertShown(true);
+      dispatch(changeGameState("END"));
+    }
+  });
 
   return (
     <group
