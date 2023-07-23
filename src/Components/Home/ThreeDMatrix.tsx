@@ -64,7 +64,7 @@ const ThreeDMatrix = ({
   }, [levelConfig]);
 
   return (
-    <div className="h-screen w-full bg-gray-400">
+    <div className="h-screen w-full bg-blue-600">
       <Canvas>
         <ambientLight intensity={0.9} />
         <spotLight

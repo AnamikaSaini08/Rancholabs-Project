@@ -11,14 +11,14 @@ export const GameLevel = ({ levelConfig ,nextLevelUpdated,setNextLevelUpdated}:
     setNextLevelUpdated:any;
   }) => {
   const [showHint, setShowHint] = useState(false);
-  const [full3DScreen, setFull3DScreen] = useState(true);
+  const [full3DScreen, setFull3DScreen] = useState(false);
   const [isReset, setIsReset] = useState(false);
   const [blocklyKey, setBlocklyKey] = useState(0);
 
   useEffect(()=>{
     setIsReset(false);
     setShowHint(false);
-    setFull3DScreen(true);
+    setFull3DScreen(false);
     setBlocklyKey((prevKey) => prevKey + 1);
   },[levelConfig])
 

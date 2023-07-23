@@ -33,7 +33,7 @@ export function Disney(props: JSX.IntrinsicElements['group']) {
   const { nodes, materials } = useGLTF('./Assets/disney/scene.gltf') as GLTFResult
   return (
     <group {...props} dispose={null}>
-      <group scale={20.427}>
+      <group scale={25.427}>
         <mesh geometry={nodes.Object_4.geometry} material={materials['Material.001']} />
         <mesh geometry={nodes.Object_5.geometry} material={materials['Material.001']} />
         <mesh geometry={nodes.Object_6.geometry} material={materials['Material.001']} />

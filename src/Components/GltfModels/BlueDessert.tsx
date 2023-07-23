@@ -24,7 +24,7 @@ export function BlueDessert(props: JSX.IntrinsicElements['group']) {
   const { nodes, materials } = useGLTF('./Assets/blueDessert/scene.gltf') as GLTFResult
   return (
     <group {...props} dispose={null}>
-      <group scale={1.01}>
+      <group scale={30.01}>
         <mesh geometry={nodes.Sphere__0.geometry} material={materials['Scene_-_Root']} rotation={[-Math.PI / 2, 0, 0]} scale={5000000} />
       </group>
     </group>

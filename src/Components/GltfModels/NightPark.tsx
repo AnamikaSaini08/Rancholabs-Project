@@ -24,7 +24,7 @@ export function NightPark(props: JSX.IntrinsicElements['group']) {
   const { nodes, materials } = useGLTF('./Assets/nightPark/scene.gltf') as GLTFResult
   return (
     <group {...props} dispose={null}>
-      <group scale={0.01}>
+      <group scale={0.09}>
         <mesh geometry={nodes.Sphere_Material_0.geometry} material={materials.Material} rotation={[-Math.PI / 2, 0, 0]} scale={5500000} />
       </group>
     </group>

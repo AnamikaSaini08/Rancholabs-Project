@@ -21,7 +21,7 @@ const initialState: IGameConfig[] = [
     initialDirectionRobot: "TOP",
     hintArray: ["LEFT", "FORWARD"],
     gridTheme: GridThemes.whiteBlue,
-    environment: EnvironmentThemes.NightForest,
+    environment: EnvironmentThemes.SpaceTwoBackground,
     blocks: ["move_block"],
   },
   {

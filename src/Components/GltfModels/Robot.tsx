@@ -155,6 +155,7 @@ export function Robot({
       dispatch(changeGameState("START"));
       setIsAlertShown(false);
       setIsReset(false);
+      
     }
   }, [isReset]);
   const dispatchRef = useRef(dispatch);
@@ -172,6 +173,9 @@ export function Robot({
         setCurrentIndex(0);
         setRotation(0);
         setIsAlertShown(false);
+        cameraRef.current.position.x = 0;
+        cameraRef.current.position.y = 4.5;
+        cameraRef.current.position.z =-12;
       }
     }, 5000);
 
@@ -195,6 +199,7 @@ export function Robot({
       });
     }, 1000);
   };
+  //Check if battery is present
   const checkBatteryPosition = (
     filterBatteryPosition: [number, number][],
     setFilterBatteryPosition: any,
@@ -224,21 +229,6 @@ export function Robot({
       orbitRef.current.target.y = robot.position.y;
       orbitRef.current.target.z = robot.position.z;
     }
-    console.log("camera");
-
-    console.log(cameraRef.current.position.x);
-    console.log(cameraRef.current.position.y);
-    console.log(cameraRef.current.position.z);
-    console.log("Target");
-
-    console.log(orbitRef.current.target.x);
-    console.log(orbitRef.current.target.y);
-    console.log(orbitRef.current.target.z);
-
-    console.log("Robot");
-    console.log(robot.position.x);
-    console.log(robot.position.y);
-    console.log(robot.position.z);
     if (currentIndex < blocklyInstruction.length) {
       if (gameState === "PLAY" && checkIsGameWin(filterBatteryPosition)) {
         setTimeout(() => {

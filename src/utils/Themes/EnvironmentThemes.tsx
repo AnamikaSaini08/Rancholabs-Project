@@ -13,12 +13,29 @@ const NightSky = lazy(() => import("../../Components/GltfModels/NightSky").then(
 
 const WoodenHome = lazy(() => import("../../Components/GltfModels/WoodenHome").then(({ WoodenHome }) => ({ default: WoodenHome })),);
 const Disney = lazy(() => import("../../Components/GltfModels/Disney").then(({ Disney }) => ({ default: Disney })),);
+const BlueDessert = lazy(() => import("../../Components/GltfModels/BlueDessert").then(({ BlueDessert }) => ({ default: BlueDessert })),);
+const NightPark = lazy(() => import("../../Components/GltfModels/NightPark").then(({ NightPark }) => ({ default: NightPark })),);
+const SpaceTwo = lazy(() => import("../../Components/GltfModels/SpaceTwo").then(({ SpaceTwo }) => ({ default: SpaceTwo })),);
 
+export const SpaceTwoBackground = () => {
+  return (
+    <Suspense fallback="Loading...">
+      <SpaceTwo position={[15, 0, 7]} />
+    </Suspense>
+  );
+};
+export const NightParkBackground = () => {
+  return (
+    <Suspense fallback="Loading...">
+      <NightPark position={[0, -20, 0]}/>
+    </Suspense>
+  );
+};
 
 export const DisneyBackground = () => {
   return (
     <Suspense fallback="Loading...">
-      <Disney position={[0, 10, 5]}/>
+      <Disney position={[-5, 10, 5]}/>
     </Suspense>
   );
 };
@@ -32,66 +49,18 @@ export const  WoodenHomeBackground= () => {
 export const NightForest = () => {
   return (
     <Suspense fallback="Loading...">
-      <NightSky position={[0, 10, 5]}/>
+      <NightSky position={[15, -22, 7]}/>
     </Suspense>
   );
 };
 
-// export const SpaceCraft = () => {
-//   return (
-//     <>
-//       <Space position={[0, 3, -30]} />
-//       <Space position={[0, 2, 30]} />
-//       <SpaceTwo position={[15, 0, 7]} />
-//     </>
-//   );
-// };
-
-// export const NightForest =()=>{
-//   return (
-//     <>
-//     <NightSky position={[15, -22, 7]}/>
-//     </>
-//   );
-// }
-// export const NightParkBackground =()=>{
-//   return (
-//     <>
-//     <NightPark position={[-100, -100,-100]} />
-//     </>
-//   );
-// }
-// export const DisneyBackground =()=>{
-//   return (
-//     <>
-//     <Disney position={[0, 10, 5]}/>
-//     </>
-//   );
-// }
-
-// export const VillageBackground =()=>{
-//   return (
-//     <mesh>
-//     <Village position={[-10, -10, -10]} />
-//     </mesh>
-//   );
-// }
-// export const WoodenHomeBackground =()=>{
-//   return (
-//     <>
-//     <WoodenHome position={[0, -0.5, -1]}/>
-//     </>
-//   );
-// }
-
-// export const BlueDessertBackground =()=>{
-//   return (
-//     <>
-//     <BlueDessert position={[0, 5, -20]}/>
-//     </>
-//   );
-// }
-
+export const BlueDessertBackground = () => {
+  return (
+    <Suspense fallback="Loading...">
+      <BlueDessert position={[15,0,15]} />
+    </Suspense>
+  );
+};
 
 
 

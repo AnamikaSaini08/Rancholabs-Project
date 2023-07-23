@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const gameLevelSlice = createSlice({
   name: "gameLevel",
   initialState: {
-    gameLevel: 2,
+    gameLevel: 3,
     gameState: "START",
     robotSpeed: 0.02,
   },
