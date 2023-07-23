@@ -21,7 +21,7 @@ const initialState: IGameConfig[] = [
     initialDirectionRobot: "TOP",
     hintArray: ["LEFT", "FORWARD"],
     gridTheme: GridThemes.whiteBlue,
-    environment: EnvironmentThemes.SpaceCraft,
+    environment: EnvironmentThemes.NightForest,
     blocks: ["move_block"],
   },
   {
@@ -38,13 +38,12 @@ const initialState: IGameConfig[] = [
     batteryPosition: [
       [2, 2],
       [2,3],
-      [2,5],
-      [3,3]
+     
     ],
     initialDirectionRobot: "TOP",
     hintArray: ["LEFT", "FORWARD"],
     gridTheme: GridThemes.whiteBlue,
-    environment: EnvironmentThemes.NightForest,
+    environment: EnvironmentThemes.WoodenHomeBackground,
     blocks: ["move_block", "turn_block"],
   },
   {
@@ -66,7 +65,7 @@ const initialState: IGameConfig[] = [
     initialDirectionRobot: "TOP",
     hintArray: ["LEFT", "FORWARD"],
     gridTheme: GridThemes.orangeBrown,
-    environment: EnvironmentThemes.SpaceCraft,
+    environment: EnvironmentThemes.DisneyBackground,
     blocks: ["move_block", "turn_block", "repeat_block"],
   },
 ];
