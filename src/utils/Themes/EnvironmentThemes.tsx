@@ -2,6 +2,7 @@ import { Environment } from "@react-three/drei";
 import { DoubleSide, TextureLoader } from "three";
 import * as THREE from "three";
 import {Suspense, lazy} from 'react';
+import Shimmer from "../../Components/Home/Shimmer";
 const NightSky = lazy(() => import("../../Components/GltfModels/NightSky").then(({ NightSky }) => ({ default: NightSky })),);
 // import { SpaceTwo } from "../../Components/GltfModels/SpaceTwo";
 // import { NightSky } from "../../Components/GltfModels/NightSky";
@@ -19,7 +20,7 @@ const SpaceTwo = lazy(() => import("../../Components/GltfModels/SpaceTwo").then(
 
 export const SpaceTwoBackground = () => {
   return (
-    <Suspense fallback="Loading...">
+    <Suspense fallback={<Shimmer/>}>
       <SpaceTwo position={[15, 0, 7]} />
     </Suspense>
   );
