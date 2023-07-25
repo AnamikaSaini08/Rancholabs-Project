@@ -16,6 +16,10 @@ const registrationSchema = new mongoose.Schema({
         type: String,
         required: true,
         trim: true,
+    },
+    gameLevel:{
+        type:Number,
+        default: 1
     }
 });
 const User = mongoose.model('User', registrationSchema);

@@ -2,25 +2,22 @@ const express = require('express');
 const app = express();
 const connectDB = require('./DB/dbConnection')
 const User = require('./Model/registrationModel');
+const errorMiddleware = require('./middleware/error');
+const ErrorHandler = require('./utils/ErrorHandling');
 connectDB();
 
 app.use(express.json());
 app.use(express.urlencoded({extends: true}))
+//Error middleware
+app.use(errorMiddleware);
 
-app.post('/user/register',async(req,res)=>{
-    console.log("-- ",req.body);
+app.post('/user/register',async(req,res,next)=>{
     const {username,password,confirmPassword} = req.body;
     if(!username || !password || !confirmPassword){
-        return res.send({
-            success:false,
-            message:"Insufficient Information"
-        })
+        return next(new ErrorHandler("Insufficient Information",404));
     }
     if(password !== confirmPassword){
-        return res.send({
-            success:false,
-            message:"Passowrd does't match"
-        })
+        return next(new ErrorHandler("Passowrd does't match",404));
     }
     const newUser = new User({username,password,confirmPassword});
     await newUser.save();
@@ -31,22 +28,15 @@ app.post('/user/register',async(req,res)=>{
 });
 
 app.post('/user/login',async(req,res)=>{
-    console.log("Bofu ",req.body);
     const {username, password} = req.body;
     if(!username || !password){
-        return res.send({
-            success:false,
-            message:"Insufficient Information"
-        })
+        return next(new ErrorHandler("Insufficient Information",404));
     }
     const user = await User.findOne({ username: { $regex: `^${username}$`, $options: 'i' } });
 
     console.log(user);
     if(!user){
-        return res.send({
-            success:false,
-            message:"Username Does Not Found"
-        })
+        return next(new ErrorHandler("Username Does Not Found",404));
     }
     res.send({
         success: true,
